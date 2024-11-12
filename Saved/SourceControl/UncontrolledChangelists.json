@@ -1,0 +1,19 @@
+{
+	"version": 1,
+	"changelists": [
+		{
+			"guid": "00000000000000000000000000000000",
+			"description": "Default Uncontrolled Changelist",
+			"files": [
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Input/IMC_Default.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Input/Actions/IA_Sprint.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/Characters/Mannequins/Animations/ABP_Manny.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Input/Actions/IA_Aim.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Input/Actions/IA_Shoot.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/NewCurveBase.uasset",
+				"H:/Unreal Projects/test/LetBeeBe/Content/ThirdPerson/Input/Actions/IA_Sprint1.uasset"
+			]
+		}
+	]
+}

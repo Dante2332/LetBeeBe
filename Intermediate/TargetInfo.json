@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "LetBeeBe",
+			"Path": "..\\Source\\LetBeeBe.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "LetBeeBeEditor",
+			"Path": "..\\Source\\LetBeeBeEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}
