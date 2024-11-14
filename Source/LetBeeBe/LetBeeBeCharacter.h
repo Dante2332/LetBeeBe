@@ -26,7 +26,7 @@ class ALetBeeBeCharacter : public ACharacter
 	USpringArmComponent* CameraBoom;
 	
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* Weapon;
 	
 
@@ -85,6 +85,8 @@ public:
 	float StartWalkSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	float Sensitivity;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	bool bIsAiming;
 	
 
 protected:

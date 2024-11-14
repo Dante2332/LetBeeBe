@@ -44,6 +44,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	Sensitivity = 0.5f;
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CarriedWeapon"));
+	Weapon->SetupAttachment(GetMesh(),("hand_r"));
 	
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -62,6 +63,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	}
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	bIsAiming = false;
 }
 
 void ALetBeeBeCharacter::BeginPlay()
@@ -201,11 +203,13 @@ void ALetBeeBeCharacter::Look(const FInputActionValue& Value)
 
 	void ALetBeeBeCharacter::Aim(const FInputActionValue & Value)
 	{
+		bIsAiming = true;
 		CameraZoomTimeline.Play();
 	}
 
 	void ALetBeeBeCharacter::StopAiming(const FInputActionValue & Value)
 	{
+		bIsAiming = false;
 		CameraZoomTimeline.Reverse();
 	}
 
