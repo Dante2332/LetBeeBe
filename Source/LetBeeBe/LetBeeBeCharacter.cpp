@@ -43,7 +43,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	Sensitivity = 0.5f;
 
-	
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CarriedWeapon"));
 	
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
