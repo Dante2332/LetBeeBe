@@ -157,6 +157,7 @@ void ALetBeeBeCharacter::Move(const FInputActionValue& Value)
 
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);//Enhanced Input Functions
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 void ALetBeeBeCharacter::Sprint(const FInputActionValue& Value)
