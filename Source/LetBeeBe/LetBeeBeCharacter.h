@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 struct FTimeline;
 
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
@@ -32,31 +33,21 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 	
-
-	/** Timeline Setup for aim zooming */
-	FTimeline* CameraZoomTimeline;
-
-	UFUNCTION()
-	void HandleCameraZoomProgress(float Value);
-
-	float StartCameraBoomLength = 400.f;
-
-	float AimingCameraBoomLength = 250.f;
-
-	UPROPERTY(EditAnywhere, Category = Camera)
-	UCurveFloat* CameraZoomCurve;
-	
 	APlayerHUD* PlayerHUD;
+
+
+
+
+	
 
 public:
 	ALetBeeBeCharacter();
-	virtual ~ALetBeeBeCharacter() override;
 
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
+	FORCEINLINE class APlayerHUD* GetPlayerHUD() const { return PlayerHUD; }
 protected:
 
 	
@@ -64,6 +55,8 @@ protected:
 	virtual void BeginPlay();
 	
 	virtual void Tick(float DeltaTime);
+
+
 };
 
 

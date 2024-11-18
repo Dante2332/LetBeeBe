@@ -10,6 +10,7 @@ class USpringArmComponent;
 class ALetBeeBeCharacter;
 class UInputMappingContext;
 class UInputAction;
+struct FTimeline;
 struct FInputActionValue;
 /**
  * 
@@ -20,11 +21,25 @@ class LETBEEBE_API UPlayerMovementComponent : public UCharacterMovementComponent
 	GENERATED_BODY()
 public:
 	UPlayerMovementComponent();
+	~UPlayerMovementComponent();
 
+protected:
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	APlayerController* PlayerController;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
+private:
+	ALetBeeBeCharacter* Owner;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	float Sensitivity = 0.5f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	float StartWalkSpeed;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
-	virtual void BeginPlay() override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -42,17 +57,6 @@ public:
 	
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-protected:
-	APlayerController* PlayerController;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
-private:
-	ALetBeeBeCharacter* OwnerCharacter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	float Sensitivity = 0.5f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	float StartWalkSpeed;
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -77,4 +81,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
 
+	//Timeline for aiming
+	FTimeline* CameraZoomTimeline;
+	UPROPERTY(EditAnywhere, Category = Camera)
+	UCurveFloat* CameraZoomCurve;
+	
+	UFUNCTION()
+	void HandleCameraZoomProgress(const float Value) const;
+	UFUNCTION()
+	void BindCameraZoomCurve();
+	float StartCameraBoomLength;
+
+	float AimingCameraBoomLength = 250.f;
 };
