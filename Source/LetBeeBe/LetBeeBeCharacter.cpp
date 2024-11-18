@@ -9,11 +9,12 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/Timelinecomponent.h"
 #include "InputActionValue.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-
+//Constructor
 ALetBeeBeCharacter::ALetBeeBeCharacter()
 {
 	
@@ -41,7 +42,8 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = StartCameraBoomLength; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	Sensitivity = 0.5f;
+
+	CameraZoomTimeline = new FTimeline();
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CarriedWeapon"));
 	Weapon->SetupAttachment(GetMesh(),("hand_r"));
@@ -50,9 +52,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
-
-	// Set start Walk Speed
-	StartWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	
 
 
 	//Curve Path
@@ -63,7 +63,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	}
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
-	bIsAiming = false;
+	
 }
 
 void ALetBeeBeCharacter::BeginPlay()
@@ -74,8 +74,8 @@ void ALetBeeBeCharacter::BeginPlay()
 	{
 		FOnTimelineFloat TimelineProgress;
 		TimelineProgress.BindUFunction(this, FName("HandleCameraZoomProgress"));
-		CameraZoomTimeline.AddInterpFloat(CameraZoomCurve, TimelineProgress);
-		CameraZoomTimeline.SetLooping(false);
+		CameraZoomTimeline->AddInterpFloat(CameraZoomCurve, TimelineProgress);
+		CameraZoomTimeline->SetLooping(false);
 	}
 	else
 	{
@@ -92,143 +92,23 @@ void ALetBeeBeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CameraZoomTimeline.TickTimeline(DeltaTime);
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void ALetBeeBeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	// Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-
-		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALetBeeBeCharacter::Move);
-
-		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ALetBeeBeCharacter::Look);
-
-		// Aiming
-		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ALetBeeBeCharacter::Aim);
-		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ALetBeeBeCharacter::StopAiming);
-
-		// Sprinting
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ALetBeeBeCharacter::Sprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ALetBeeBeCharacter::StopSprinting);
-
-		// Shooting
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ALetBeeBeCharacter::Shoot);
-
-	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
-}
-
-void ALetBeeBeCharacter::Move(const FInputActionValue& Value)
-{
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-	GEngine->AddOnScreenDebugMessage(1, 15, FColor::Yellow, TEXT("A"));
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0.0f;
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
-
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);//Enhanced Input Functions
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
-}
-void ALetBeeBeCharacter::Sprint(const FInputActionValue& Value)
-{
-		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	CameraZoomTimeline->TickTimeline(DeltaTime);
 }
 
 
-
-void ALetBeeBeCharacter::Look(const FInputActionValue& Value)
-{
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		FRotator Rotation = Controller->GetControlRotation();
-		Rotation.Pitch = 0.0f;
-		AddControllerYawInput(LookAxisVector.X * Sensitivity);
-		if (CameraBoom->GetTargetRotation().Pitch > 310 || CameraBoom->GetTargetRotation().Pitch < 30)
-		{
-			AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
-		}
-		if (CameraBoom->GetTargetRotation().Pitch < 310 && CameraBoom->GetTargetRotation().Pitch > 290 && LookAxisVector.Y < 0)
-		{
-			AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
-		}
-		if (CameraBoom->GetTargetRotation().Pitch < 60 && CameraBoom->GetTargetRotation().Pitch > 30 && LookAxisVector.Y > 0)
-		{
-			AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
-		}
-		SetActorRotation(Rotation);
-	}
-}
-
-	void ALetBeeBeCharacter::StopSprinting(const FInputActionValue & Value)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = StartWalkSpeed;
-	}
-
-	void ALetBeeBeCharacter::Aim(const FInputActionValue & Value)
-	{
-		bIsAiming = true;
-		CameraZoomTimeline.Play();
-	}
-
-	void ALetBeeBeCharacter::StopAiming(const FInputActionValue & Value)
-	{
-		bIsAiming = false;
-		CameraZoomTimeline.Reverse();
-	}
-
-	void ALetBeeBeCharacter::Shoot(const FInputActionValue & Value)
-	{
-		;
-	}
-
-	void ALetBeeBeCharacter::StopShooting(const FInputActionValue & Value)
-	{
-		;
-	}
-
-	
-
-	void ALetBeeBeCharacter::HandleCameraZoomProgress(float Value)
+void ALetBeeBeCharacter::HandleCameraZoomProgress(float Value)
 	{
 		CameraBoom->TargetArmLength = FMath::Lerp(StartCameraBoomLength, AimingCameraBoomLength, Value);
 		PlayerHUD->CrosshairGap = FMath::Lerp(PlayerHUD->StartCrosshairGap, PlayerHUD->AimingCrosshairGap, Value);
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("CrosshairGap: %f"), PlayerHUD->CrosshairGap));
 	}
 
+//Destructor
+ALetBeeBeCharacter::~ALetBeeBeCharacter()
+{
+	if (CameraZoomTimeline)
+	{
+		delete CameraZoomTimeline;
+		CameraZoomTimeline = nullptr;
+	}
+}
