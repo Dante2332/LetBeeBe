@@ -17,6 +17,8 @@ AGun::AGun()
 	SetRootComponent(Root);
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
 	WeaponMesh->SetupAttachment(Root);
+	
+	Damage = 15.0f;
 }
 
 // Called when the game starts or when spawned
@@ -34,7 +36,25 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::HandleShoot()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Shot"));
+	/*DrawDebugSphere(GetWorld(), Start, 50, 50, FColor::Blue, false, 15);
+	DrawDebugSphere(GetWorld(), End, 50, 50, FColor::Green, false, 15);*/
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn) return;
+	AController* Controller = OwnerPawn->GetController();
+	if (!Controller) return;
+	FVector Location;
+	FRotator Rotation;
+	Controller->GetPlayerViewPoint(Location, Rotation);
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.bTraceComplex = true;
+	Params.AddIgnoredActor(OwnerPawn);
+	FVector EndLocation = Location + Rotation.Vector() * 5000;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Location, EndLocation, ECC_GameTraceChannel1, Params))
+	{
+		GEngine->AddOnScreenDebugMessage(1, 10, FColor::Red, TEXT("shot"));
+		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
+	}
 }
 
 void AGun::BindHandleShoot()
