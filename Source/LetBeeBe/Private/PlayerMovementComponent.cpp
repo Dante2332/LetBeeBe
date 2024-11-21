@@ -8,9 +8,11 @@
 #include "InputAction.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
+#include "Camera/CameraComponent.h"
 #include "Components/Timelinecomponent.h"
+#include "Engine/DamageEvents.h"
 
-
+class AGun;
 UPlayerMovementComponent::UPlayerMovementComponent()
 {
 	JumpZVelocity = 650.f;
@@ -90,7 +92,7 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &UPlayerMovementComponent::StopSprinting);
 
 		// Shooting
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &UPlayerMovementComponent::Shoot);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Shoot);
 
 	
 	}
@@ -172,7 +174,17 @@ void UPlayerMovementComponent::StopAiming(const FInputActionValue & Value)
 
 void UPlayerMovementComponent::Shoot(const FInputActionValue & Value)
 {
-	;
+	if (OnShoot.IsBound())
+	{
+		OnShoot.Broadcast();
+	}
+	FHitResult HitResult;
+	FVector Start = Owner->GetFollowCamera()->GetRelativeLocation();
+	FVector End = Start + Owner->GetFollowCamera()->GetForwardVector() * 500;
+	if (GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ECollisionChannel::ECC_GameTraceChannel2))
+	{
+		HitResult.GetActor()->OnTakePointDamage;
+	}
 }
 
 void UPlayerMovementComponent::StopShooting(const FInputActionValue & Value)

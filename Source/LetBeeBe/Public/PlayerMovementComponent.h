@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerMovementComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShotSignature);
+
 class USpringArmComponent;
 class ALetBeeBeCharacter;
 class UInputMappingContext;
@@ -22,6 +24,9 @@ class LETBEEBE_API UPlayerMovementComponent : public UCharacterMovementComponent
 public:
 	UPlayerMovementComponent();
 	~UPlayerMovementComponent();
+
+	UPROPERTY(BlueprintAssignable)
+	FShotSignature OnShoot;	
 
 protected:
 	virtual void BeginPlay() override;
@@ -43,7 +48,7 @@ private:
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-	/** Called for sprit input */
+	/** Called for sprint input */
 	void Sprint(const FInputActionValue& Value);	
 	void StopSprinting(const FInputActionValue& Value);
 
