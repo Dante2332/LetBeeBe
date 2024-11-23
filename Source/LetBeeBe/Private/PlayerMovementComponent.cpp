@@ -58,7 +58,6 @@ void UPlayerMovementComponent::HandleCameraZoomProgress(const float Value) const
 	Owner->GetCameraBoom()->TargetArmLength = FMath::Lerp(StartCameraBoomLength, AimingCameraBoomLength, Value);
 	APlayerHUD* PlayerHUD = Owner->GetPlayerHUD();
 	PlayerHUD->CrosshairGap = FMath::Lerp(PlayerHUD->StartCrosshairGap, PlayerHUD->AimingCrosshairGap, Value);
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("CrosshairGap: %f"), PlayerHUD->CrosshairGap));
 }
 
 void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -93,7 +92,10 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 
 		// Shooting
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Shoot);
-
+		
+		//Reloading
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Reload);
+		
 	
 	}
 	else
@@ -187,10 +189,15 @@ void UPlayerMovementComponent::Shoot(const FInputActionValue & Value)
 	}
 }
 
-void UPlayerMovementComponent::StopShooting(const FInputActionValue & Value)
+void UPlayerMovementComponent::Reload(const FInputActionValue &Value)
 {
-	;
+	if (OnReload.IsBound())
+	{
+		OnReload.Broadcast();
+	}
 }
+
+
 void UPlayerMovementComponent::BindCameraZoomCurve()
 {
 	if (CameraZoomCurve)

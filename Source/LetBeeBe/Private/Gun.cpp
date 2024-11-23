@@ -17,15 +17,15 @@ AGun::AGun()
 	SetRootComponent(Root);
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
 	WeaponMesh->SetupAttachment(Root);
-	
-	Damage = 15.0f;
 }
 
 // Called when the game starts or when spawned
 void AGun::BeginPlay()
 {
+	ClipCurrentAmmo = ClipSize;
 	Super::BeginPlay();
 	BindHandleShoot();
+	BindStartReloading();
 }
 
 // Called every frame
@@ -36,8 +36,7 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::HandleShoot()
 {
-	/*DrawDebugSphere(GetWorld(), Start, 50, 50, FColor::Blue, false, 15);
-	DrawDebugSphere(GetWorld(), End, 50, 50, FColor::Green, false, 15);*/
+	if (bIsReloading || ClipCurrentAmmo <= 0) return;
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return;
 	AController* Controller = OwnerPawn->GetController();
@@ -55,6 +54,8 @@ void AGun::HandleShoot()
 		GEngine->AddOnScreenDebugMessage(1, 10, FColor::Red, TEXT("shot"));
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 	}
+	--ClipCurrentAmmo;
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Ammo After Shooting: %d"), ClipCurrentAmmo));
 }
 
 void AGun::BindHandleShoot()
@@ -67,3 +68,33 @@ void AGun::BindHandleShoot()
 	}
 }
 
+void AGun::StartReloading()
+{
+	if (bIsReloading || ClipCurrentAmmo == ClipSize || TotalAmmo <= 0) return;
+		bIsReloading = true;
+		GetWorld()->GetTimerManager().SetTimer(
+			ReloadTimer,
+			this,
+			&AGun::HandleReload,
+			ReloadSpeed,
+			false
+		);
+}
+
+void AGun::BindStartReloading()
+{
+	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner());
+	if (Player)
+	{
+		UPlayerMovementComponent* MovementComponent = Player->FindComponentByClass<UPlayerMovementComponent>();
+		MovementComponent->OnReload.AddDynamic(this, &AGun::StartReloading);
+	}
+}
+
+void AGun::HandleReload()
+{
+	int32 AmmoToReload = FMath::Min(ClipSize - ClipCurrentAmmo, TotalAmmo);
+	ClipCurrentAmmo += AmmoToReload;
+	TotalAmmo -= AmmoToReload;
+	bIsReloading = false;
+}

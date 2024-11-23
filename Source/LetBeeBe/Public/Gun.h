@@ -16,6 +16,8 @@ public:
 	AGun();
 	UFUNCTION()
 	void HandleShoot();
+	UFUNCTION()
+	void StartReloading();
 	
 
 protected:
@@ -23,14 +25,32 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	float Damage;
+	float Damage = 15.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	int32 TotalAmmo = 42;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	float ReloadSpeed = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	int32 ClipSize;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Stats")
+	int32 ClipCurrentAmmo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsReloading;
 	
+	FTimerHandle ReloadTimer;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	void BindHandleShoot();
+	void HandleReload();
+	void BindStartReloading();
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;

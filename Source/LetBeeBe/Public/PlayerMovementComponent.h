@@ -7,6 +7,7 @@
 #include "PlayerMovementComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShotSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadSignature);
 
 class USpringArmComponent;
 class ALetBeeBeCharacter;
@@ -26,7 +27,9 @@ public:
 	~UPlayerMovementComponent();
 
 	UPROPERTY(BlueprintAssignable)
-	FShotSignature OnShoot;	
+	FShotSignature OnShoot;
+	UPROPERTY(BlueprintAssignable)
+	FReloadSignature OnReload;	
 
 protected:
 	virtual void BeginPlay() override;
@@ -58,10 +61,11 @@ private:
 
 	/** Called for shoot input*/
 	void Shoot(const FInputActionValue& Value);
-	void StopShooting(const FInputActionValue& Value);
 	
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+	
+	void Reload(const FInputActionValue& Value);
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -85,7 +89,9 @@ private:
 	/** Shoot Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ReloadAction;
 	//Timeline for aiming
 	FTimeline* CameraZoomTimeline;
 	UPROPERTY(EditAnywhere, Category = Camera)
