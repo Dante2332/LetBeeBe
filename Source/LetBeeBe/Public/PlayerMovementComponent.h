@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "InputMappingContext.h"
 #include "PlayerMovementComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShotSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadSignature);
+DECLARE_DELEGATE_OneParam(FAimSignature, bool bIsAiming);
+DECLARE_DELEGATE(FShotSignature);
+DECLARE_DELEGATE(FReloadSignature);
 
 class USpringArmComponent;
 class ALetBeeBeCharacter;
-class UInputMappingContext;
 class UInputAction;
-struct FTimeline;
+
 struct FInputActionValue;
 /**
  * 
@@ -24,19 +25,19 @@ class LETBEEBE_API UPlayerMovementComponent : public UCharacterMovementComponent
 	GENERATED_BODY()
 public:
 	UPlayerMovementComponent();
-	~UPlayerMovementComponent();
 
-	UPROPERTY(BlueprintAssignable)
+	
+	FAimSignature OnAim;
 	FShotSignature OnShoot;
-	UPROPERTY(BlueprintAssignable)
 	FReloadSignature OnReload;	
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UPROPERTY()
 	APlayerController* PlayerController;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 private:
+	UPROPERTY()
 	ALetBeeBeCharacter* Owner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -92,16 +93,5 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ReloadAction;
-	//Timeline for aiming
-	FTimeline* CameraZoomTimeline;
-	UPROPERTY(EditAnywhere, Category = Camera)
-	UCurveFloat* CameraZoomCurve;
-	
-	UFUNCTION()
-	void HandleCameraZoomProgress(const float Value) const;
-	UFUNCTION()
-	void BindCameraZoomCurve();
-	float StartCameraBoomLength;
 
-	float AimingCameraBoomLength = 250.f;
 };

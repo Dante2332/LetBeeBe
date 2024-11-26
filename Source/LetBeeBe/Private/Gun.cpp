@@ -64,7 +64,7 @@ void AGun::BindHandleShoot()
 	if (Player)
 	{
 		UPlayerMovementComponent* MovementComponent = Player->FindComponentByClass<UPlayerMovementComponent>();
-		MovementComponent->OnShoot.AddDynamic(this, &AGun::HandleShoot);
+		MovementComponent->OnShoot.BindUObject(this, &AGun::HandleShoot);
 	}
 }
 
@@ -80,17 +80,6 @@ void AGun::StartReloading()
 			false
 		);
 }
-
-void AGun::BindStartReloading()
-{
-	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner());
-	if (Player)
-	{
-		UPlayerMovementComponent* MovementComponent = Player->FindComponentByClass<UPlayerMovementComponent>();
-		MovementComponent->OnReload.AddDynamic(this, &AGun::StartReloading);
-	}
-}
-
 void AGun::HandleReload()
 {
 	int32 AmmoToReload = FMath::Min(ClipSize - ClipCurrentAmmo, TotalAmmo);
@@ -98,3 +87,20 @@ void AGun::HandleReload()
 	TotalAmmo -= AmmoToReload;
 	bIsReloading = false;
 }
+
+void AGun::BindStartReloading()
+{
+	GetPlayerMovementComponent()->OnReload.BindUObject(this, &AGun::StartReloading);
+}
+
+UPlayerMovementComponent* AGun::GetPlayerMovementComponent() const
+{
+	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner());
+	if (Player)
+	{
+		return Player->FindComponentByClass<UPlayerMovementComponent>();
+	}
+	return nullptr;
+}
+
+

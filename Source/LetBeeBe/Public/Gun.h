@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
+
+class UPlayerMovementComponent;
+
 UCLASS()
 class LETBEEBE_API AGun : public AActor
 {
@@ -14,11 +17,6 @@ class LETBEEBE_API AGun : public AActor
 public:
 	// Sets default values for this actor's properties
 	AGun();
-	UFUNCTION()
-	void HandleShoot();
-	UFUNCTION()
-	void StartReloading();
-	
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,22 +37,27 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Stats")
 	int32 ClipCurrentAmmo;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsReloading;
-	
 	FTimerHandle ReloadTimer;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	bool bIsReloading;
+	
 	void BindHandleShoot();
 	void HandleReload();
 	void BindStartReloading();
+	void HandleShoot();
+	void StartReloading();
+
+	UPlayerMovementComponent* GetPlayerMovementComponent() const;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
 	
 	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* WeaponMesh;
+
 };

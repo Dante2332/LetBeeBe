@@ -9,8 +9,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "Camera/CameraComponent.h"
-#include "Components/Timelinecomponent.h"
-#include "Engine/DamageEvents.h"
 
 class AGun;
 UPlayerMovementComponent::UPlayerMovementComponent()
@@ -25,39 +23,15 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 	bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 	
-	Owner = Cast<ALetBeeBeCharacter>(GetOwner());
-	CameraZoomTimeline = new FTimeline();
-
-	//Curve Path
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Script/Engine.CurveFloat'/Game/ThirdPerson/NewCurveBase.NewCurveBase'"));
-	if (Curve.Succeeded()) 
-	{
-		CameraZoomCurve = Curve.Object;
-	}
 }
 
 void UPlayerMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	StartCameraBoomLength = Owner->GetCameraBoom()->TargetArmLength;
 	PlayerController = Cast<APlayerController>(GetController());
-	UPlayerMovementComponent::SetupPlayerInputComponent(CharacterOwner->InputComponent);
-	BindCameraZoomCurve();
+	Owner = Cast<ALetBeeBeCharacter>(GetOwner());
 
-}
-
-void UPlayerMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	CameraZoomTimeline->TickTimeline(DeltaTime);
-}
-
-
-void UPlayerMovementComponent::HandleCameraZoomProgress(const float Value) const
-{
-	Owner->GetCameraBoom()->TargetArmLength = FMath::Lerp(StartCameraBoomLength, AimingCameraBoomLength, Value);
-	APlayerHUD* PlayerHUD = Owner->GetPlayerHUD();
-	PlayerHUD->CrosshairGap = FMath::Lerp(PlayerHUD->StartCrosshairGap, PlayerHUD->AimingCrosshairGap, Value);
+	UPlayerMovementComponent::SetupPlayerInputComponent(Owner->InputComponent);
 }
 
 void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -71,7 +45,7 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 	}
 
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Owner->InputComponent)) {
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, Owner, &ALetBeeBeCharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, Owner, &ALetBeeBeCharacter::StopJumping);
@@ -95,8 +69,6 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 		
 		//Reloading
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Reload);
-		
-	
 	}
 	else
 	{
@@ -120,8 +92,8 @@ void UPlayerMovementComponent::Move(const FInputActionValue& Value)
 		const FVector RightDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
 
 		// add movement 
-		CharacterOwner->AddMovementInput(ForwardDirection, MovementVector.Y);//Enhanced Input Functions
-		CharacterOwner->AddMovementInput(RightDirection, MovementVector.X);
+		Owner->AddMovementInput(ForwardDirection, MovementVector.Y);//Enhanced Input Functions
+		Owner->AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
@@ -141,17 +113,17 @@ void UPlayerMovementComponent::Look(const FInputActionValue& Value)
 		PlayerController->AddYawInput(LookAxisVector.X * Sensitivity);
 		if (CameraBoom->GetTargetRotation().Pitch > 310 || CameraBoom->GetTargetRotation().Pitch < 30)
 		{
-			CharacterOwner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
+			Owner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
 		}
 		if (CameraBoom->GetTargetRotation().Pitch < 310 && CameraBoom->GetTargetRotation().Pitch > 290 && LookAxisVector.Y < 0)
 		{
-			CharacterOwner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
+			Owner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
 		}
 		if (CameraBoom->GetTargetRotation().Pitch < 60 && CameraBoom->GetTargetRotation().Pitch > 30 && LookAxisVector.Y > 0)
 		{
-			CharacterOwner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
+			Owner->AddControllerPitchInput(LookAxisVector.Y * Sensitivity);
 		}
-		CharacterOwner->SetActorRotation(Rotation);
+		Owner->SetActorRotation(Rotation);
 	}
 }
 void UPlayerMovementComponent::Sprint(const FInputActionValue& Value)
@@ -166,19 +138,25 @@ void UPlayerMovementComponent::StopSprinting(const FInputActionValue & Value)
 
 void UPlayerMovementComponent::Aim(const FInputActionValue & Value)
 {
-	CameraZoomTimeline->Play();
+	if (OnAim.IsBound())
+	{
+		OnAim.Execute(true);
+	}
 }
 
 void UPlayerMovementComponent::StopAiming(const FInputActionValue & Value)
 {
-	CameraZoomTimeline->Reverse();
+	if (OnAim.IsBound())
+	{
+		OnAim.Execute(false);
+	}
 }
 
 void UPlayerMovementComponent::Shoot(const FInputActionValue & Value)
 {
 	if (OnShoot.IsBound())
 	{
-		OnShoot.Broadcast();
+		OnShoot.Execute();
 	}
 	FHitResult HitResult;
 	FVector Start = Owner->GetFollowCamera()->GetRelativeLocation();
@@ -193,33 +171,6 @@ void UPlayerMovementComponent::Reload(const FInputActionValue &Value)
 {
 	if (OnReload.IsBound())
 	{
-		OnReload.Broadcast();
+		OnReload.Execute();
 	}
 }
-
-
-void UPlayerMovementComponent::BindCameraZoomCurve()
-{
-	if (CameraZoomCurve)
-	{
-		FOnTimelineFloat TimelineProgress;
-		TimelineProgress.BindUFunction(this, FName("HandleCameraZoomProgress"));
-		CameraZoomTimeline->AddInterpFloat(CameraZoomCurve, TimelineProgress);
-		CameraZoomTimeline->SetLooping(false);
-	}
-	else
-	{
-		
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("CameraZoomCurve Not Found"));
-	}
-}
-//Destructor
-UPlayerMovementComponent::~UPlayerMovementComponent()
-{
-	if (CameraZoomTimeline)
-	{
-		delete CameraZoomTimeline;
-		CameraZoomTimeline = nullptr;
-	}
-}
-

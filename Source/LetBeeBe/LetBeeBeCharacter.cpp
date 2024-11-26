@@ -42,6 +42,8 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	StartCameraBoomLength = GetCameraBoom()->TargetArmLength;
 }
 
 void ALetBeeBeCharacter::BeginPlay()
@@ -53,8 +55,10 @@ void ALetBeeBeCharacter::BeginPlay()
 
 	//Get player HUD reference
 	PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+	PlayerHUD->SetOwner(this);
 	
 	SpawnWeapon();
+	
 }
 
 void ALetBeeBeCharacter::Tick(float DeltaTime)
@@ -73,5 +77,3 @@ void ALetBeeBeCharacter::SpawnWeapon()
 		Weapon->SetOwner(this);
 	}
 }
-
-

@@ -24,6 +24,10 @@ private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+		
+	float StartCameraBoomLength;
+
+	float AimingCameraBoomLength = 250.f;
 
 	//Health Component
 	UPROPERTY(VisibleAnywhere, Category = Health, meta = (AllowPrivateAccess = "true"))
@@ -53,6 +57,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE class APlayerHUD* GetPlayerHUD() const { return PlayerHUD; }
 	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	FORCEINLINE float GetStartCameraBoomLength() { return StartCameraBoomLength; }
+	FORCEINLINE float GetAimingCameraBoomLength() { return AimingCameraBoomLength; }
 
 protected:
 
