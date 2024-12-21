@@ -8,7 +8,7 @@
 #include "PlayerMovementComponent.generated.h"
 
 DECLARE_DELEGATE_OneParam(FAimSignature, bool bIsAiming);
-DECLARE_DELEGATE(FShotSignature);
+DECLARE_DELEGATE_OneParam(FShotSignature, bool bShouldShoot);
 DECLARE_DELEGATE(FReloadSignature);
 
 class USpringArmComponent;
@@ -37,6 +37,10 @@ protected:
 	APlayerController* PlayerController;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 private:
+	bool bIsMovingForward;
+	bool bIsSprinting;
+	bool bIsAiming;
+	
 	UPROPERTY()
 	ALetBeeBeCharacter* Owner;
 
@@ -53,20 +57,21 @@ private:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 	/** Called for sprint input */
-	void Sprint(const FInputActionValue& Value);	
-	void StopSprinting(const FInputActionValue& Value);
+	void StartSprinting();	
+	void StopSprinting();
 
 	/** Called for aim input*/
-	void Aim(const FInputActionValue& Value);
-	void StopAiming(const FInputActionValue& Value);
+	void Aim();
+	void StopAiming();
 
 	/** Called for shoot input*/
-	void Shoot(const FInputActionValue& Value);
+	void StartShooting();
+	void StopShooting();
 	
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 	
-	void Reload(const FInputActionValue& Value);
+	void Reload();
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

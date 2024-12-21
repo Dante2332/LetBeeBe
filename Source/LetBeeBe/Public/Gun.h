@@ -36,7 +36,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Stats")
 	int32 ClipCurrentAmmo;
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	float RateOfFire = 0.1f;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	bool bIsFullAuto = false;
+	
 	FTimerHandle ReloadTimer;
 public:
 	// Called every frame
@@ -45,11 +51,15 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere)
 	bool bIsReloading;
-	
+	bool bIsShooting;
+	FTimerHandle FullAutoFireTimer;
 	void BindHandleShoot();
 	void HandleReload();
 	void BindStartReloading();
-	void HandleShoot();
+	void HandleShoot(bool bShouldShoot);
+	void Fire();
+	void StartShooting();
+	void StopShooting();
 	void StartReloading();
 
 	UPlayerMovementComponent* GetPlayerMovementComponent() const;

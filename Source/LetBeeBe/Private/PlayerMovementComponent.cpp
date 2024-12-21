@@ -61,11 +61,12 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &UPlayerMovementComponent::StopAiming);
 
 		// Sprinting
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::StartSprinting);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &UPlayerMovementComponent::StopSprinting);
 
 		// Shooting
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Shoot);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::StartShooting);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &UPlayerMovementComponent::StopShooting);
 		
 		//Reloading
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Reload);
@@ -87,13 +88,24 @@ void UPlayerMovementComponent::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
-
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
 
 		// add movement 
 		Owner->AddMovementInput(ForwardDirection, MovementVector.Y);//Enhanced Input Functions
 		Owner->AddMovementInput(RightDirection, MovementVector.X);
+		if (MovementVector.Y > 0)
+		{
+			bIsMovingForward = true;
+		}
+		else
+		{
+			bIsMovingForward = false;
+		}
+		if (!bIsMovingForward && bIsSprinting)
+		{
+			StopSprinting();
+		}
 	}
 }
 
@@ -126,48 +138,62 @@ void UPlayerMovementComponent::Look(const FInputActionValue& Value)
 		Owner->SetActorRotation(Rotation);
 	}
 }
-void UPlayerMovementComponent::Sprint(const FInputActionValue& Value)
+void UPlayerMovementComponent::StartSprinting()
 {
-		MaxWalkSpeed = 600.f;
+	if (bIsAiming)
+	{
+		StopAiming();
+	}
+	bIsSprinting = true;
+	MaxWalkSpeed = 600.f;
 }
 
-void UPlayerMovementComponent::StopSprinting(const FInputActionValue & Value)
+void UPlayerMovementComponent::StopSprinting()
 {
+	bIsSprinting = false;
 	MaxWalkSpeed = StartWalkSpeed;
 }
 
-void UPlayerMovementComponent::Aim(const FInputActionValue & Value)
+void UPlayerMovementComponent::Aim()
 {
 	if (OnAim.IsBound())
 	{
+		if (bIsSprinting)
+		{
+			StopSprinting();
+		}
 		OnAim.Execute(true);
+		bIsAiming = true;
 	}
 }
 
-void UPlayerMovementComponent::StopAiming(const FInputActionValue & Value)
+void UPlayerMovementComponent::StopAiming()
 {
 	if (OnAim.IsBound())
 	{
 		OnAim.Execute(false);
+		bIsAiming = false;
 	}
 }
 
-void UPlayerMovementComponent::Shoot(const FInputActionValue & Value)
+void UPlayerMovementComponent::StartShooting()
 {
 	if (OnShoot.IsBound())
 	{
-		OnShoot.Execute();
-	}
-	FHitResult HitResult;
-	FVector Start = Owner->GetFollowCamera()->GetRelativeLocation();
-	FVector End = Start + Owner->GetFollowCamera()->GetForwardVector() * 500;
-	if (GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ECollisionChannel::ECC_GameTraceChannel2))
-	{
-		HitResult.GetActor()->OnTakePointDamage;
+		OnShoot.Execute(true);
 	}
 }
 
-void UPlayerMovementComponent::Reload(const FInputActionValue &Value)
+void UPlayerMovementComponent::StopShooting()
+{
+	if (OnShoot.IsBound())
+	{
+		OnShoot.Execute(false);
+	}
+}
+
+
+void UPlayerMovementComponent::Reload()
 {
 	if (OnReload.IsBound())
 	{

@@ -38,10 +38,15 @@ private:
 	UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TSubclassOf<AGun> WeaponClass;
+	TSubclassOf<AGun> PrimaryWeaponClass;
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TSubclassOf<AGun> SecondaryWeaponClass;
 	
 	UPROPERTY()
-	AGun* Weapon;	
+	AGun* PrimaryWeapon;	
+	
+	UPROPERTY()
+	AGun* SecondaryWeapon;
 	
 	UPROPERTY()
 	APlayerHUD* PlayerHUD;

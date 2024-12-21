@@ -34,9 +34,23 @@ void AGun::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AGun::HandleShoot()
+
+void AGun::BindStartReloading()
 {
-	if (bIsReloading || ClipCurrentAmmo <= 0) return;
+	GetPlayerMovementComponent()->OnReload.BindUObject(this, &AGun::StartReloading);
+}
+void AGun::BindHandleShoot()
+{
+	GetPlayerMovementComponent()->OnShoot.BindUObject(this, &AGun::HandleShoot);
+}
+
+void AGun::HandleShoot(bool bShouldShoot)
+{
+	bShouldShoot ? StartShooting() : StopShooting();
+}
+
+void AGun::Fire()
+{
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return;
 	AController* Controller = OwnerPawn->GetController();
@@ -51,20 +65,36 @@ void AGun::HandleShoot()
 	FVector EndLocation = Location + Rotation.Vector() * 5000;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Location, EndLocation, ECC_GameTraceChannel1, Params))
 	{
-		GEngine->AddOnScreenDebugMessage(1, 10, FColor::Red, TEXT("shot"));
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 	}
 	--ClipCurrentAmmo;
+	if (ClipCurrentAmmo == 0 || bIsShooting)
+	{
+		StopShooting();
+	}
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Ammo After Shooting: %d"), ClipCurrentAmmo));
 }
 
-void AGun::BindHandleShoot()
+void AGun::StartShooting()
 {
-	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner());
-	if (Player)
+	if (bIsReloading || ClipCurrentAmmo <= 0) return;
+	if (bIsFullAuto)
 	{
-		UPlayerMovementComponent* MovementComponent = Player->FindComponentByClass<UPlayerMovementComponent>();
-		MovementComponent->OnShoot.BindUObject(this, &AGun::HandleShoot);
+		bIsShooting = true;
+		Fire();
+		GetWorld()->GetTimerManager().SetTimer(FullAutoFireTimer, this, &AGun::Fire, RateOfFire, true);
+	}
+	else
+	{
+		Fire();
+	}
+}
+void AGun::StopShooting()
+{
+	if (bIsFullAuto)
+	{
+		bIsShooting = false;
+		GetWorld()->GetTimerManager().ClearTimer(FullAutoFireTimer);
 	}
 }
 
@@ -72,13 +102,7 @@ void AGun::StartReloading()
 {
 	if (bIsReloading || ClipCurrentAmmo == ClipSize || TotalAmmo <= 0) return;
 		bIsReloading = true;
-		GetWorld()->GetTimerManager().SetTimer(
-			ReloadTimer,
-			this,
-			&AGun::HandleReload,
-			ReloadSpeed,
-			false
-		);
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimer,this, &AGun::HandleReload,ReloadSpeed,false);
 }
 void AGun::HandleReload()
 {
@@ -88,10 +112,6 @@ void AGun::HandleReload()
 	bIsReloading = false;
 }
 
-void AGun::BindStartReloading()
-{
-	GetPlayerMovementComponent()->OnReload.BindUObject(this, &AGun::StartReloading);
-}
 
 UPlayerMovementComponent* AGun::GetPlayerMovementComponent() const
 {

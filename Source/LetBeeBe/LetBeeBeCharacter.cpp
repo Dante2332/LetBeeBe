@@ -68,12 +68,12 @@ void ALetBeeBeCharacter::Tick(float DeltaTime)
 
 void ALetBeeBeCharacter::SpawnWeapon()
 {
-	if (!Weapon)
+	if (!SecondaryWeapon)
 	{
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.Owner = this;
-		Weapon = GetWorld()->SpawnActor<AGun>(WeaponClass, SpawnParameters);
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_r");
-		Weapon->SetOwner(this);
+		SecondaryWeapon = GetWorld()->SpawnActor<AGun>(SecondaryWeaponClass, SpawnParameters);
+		SecondaryWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_r");
+		SecondaryWeapon->SetOwner(this);
 	}
 }
