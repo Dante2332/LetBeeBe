@@ -4,6 +4,7 @@
 #include "Gun.h"
 
 #include "PlayerMovementComponent.h"
+#include "WeaponDataAsset.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
 
 
@@ -17,6 +18,7 @@ AGun::AGun()
 	SetRootComponent(Root);
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Mesh");
 	WeaponMesh->SetupAttachment(Root);
+	
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +28,7 @@ void AGun::BeginPlay()
 	Super::BeginPlay();
 	BindHandleShoot();
 	BindStartReloading();
+	InitializeWeaponProperties();
 }
 
 // Called every frame
@@ -121,6 +124,20 @@ UPlayerMovementComponent* AGun::GetPlayerMovementComponent() const
 		return Player->FindComponentByClass<UPlayerMovementComponent>();
 	}
 	return nullptr;
+}
+
+void AGun::InitializeWeaponProperties()
+{
+	WeaponMesh->SetSkeletalMesh(WeaponDataAsset->WeaponInfo.WeaponMesh);
+	ClipSize = WeaponDataAsset->WeaponInfo.ClipSize;
+	WeaponName = WeaponDataAsset->WeaponInfo.Name;
+	Damage = WeaponDataAsset->WeaponInfo.Damage;
+	RateOfFire = WeaponDataAsset->WeaponInfo.RateOfFire;
+	ReloadSpeed = WeaponDataAsset->WeaponInfo.ReloadSpeed;
+	bIsFullAuto = WeaponDataAsset->WeaponInfo.bIsFullAuto;
+	TotalAmmo = WeaponDataAsset->WeaponInfo.TotalAmmo;
+	WeaponType = WeaponDataAsset->WeaponInfo.WeaponType;
+	ClipCurrentAmmo = ClipSize;
 }
 
 

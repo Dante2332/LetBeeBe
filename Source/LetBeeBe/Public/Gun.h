@@ -7,6 +7,8 @@
 #include "Gun.generated.h"
 
 
+enum class EWeaponType : uint8;
+class UWeaponDataAsset;
 class UPlayerMovementComponent;
 
 UCLASS()
@@ -21,32 +23,25 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	float Damage = 15.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	int32 TotalAmmo = 42;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	float ReloadSpeed = 2.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
+	FName WeaponName;
+	float Damage;
+	bool bIsFullAuto;
+	EWeaponType WeaponType;
+	int32 TotalAmmo;
 	int32 ClipSize;
-
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Stats")
 	int32 ClipCurrentAmmo;
-	
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	float RateOfFire = 0.1f;
+	float ReloadSpeed;
+	float RateOfFire;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Stats")
-	bool bIsFullAuto = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponProperties")
+	UWeaponDataAsset* WeaponDataAsset;
 	
 	FTimerHandle ReloadTimer;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* WeaponMesh;
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -63,11 +58,11 @@ private:
 	void StartReloading();
 
 	UPlayerMovementComponent* GetPlayerMovementComponent() const;
-
+	
+	void InitializeWeaponProperties();
+	
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
 	
-	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* WeaponMesh;
 
 };
