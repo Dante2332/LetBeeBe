@@ -26,6 +26,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float Cost;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

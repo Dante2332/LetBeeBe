@@ -18,7 +18,7 @@ void AWeaponPickup::BeginPlay()
 {
 	Super::BeginPlay();
 	WeaponMesh->SetSkeletalMesh(WeaponDataAsset->WeaponInfo.WeaponMesh);
-	
+	Cost = WeaponDataAsset->WeaponInfo.Cost;
 }
 
 // Called every frame

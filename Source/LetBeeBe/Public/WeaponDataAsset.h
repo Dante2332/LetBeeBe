@@ -44,6 +44,9 @@ struct FWeaponInfo
 
 	UPROPERTY (EditAnywhere, BlueprintReadWrite)
 	float Damage;
+
+	UPROPERTY (EditAnywhere, BlueprintReadWrite)
+	float Cost;
 	
 };
 UCLASS()

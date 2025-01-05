@@ -65,6 +65,7 @@ public:
 	FORCEINLINE float GetStartCameraBoomLength() { return StartCameraBoomLength; }
 	FORCEINLINE float GetAimingCameraBoomLength() { return AimingCameraBoomLength; }
 
+
 protected:
 
 	
