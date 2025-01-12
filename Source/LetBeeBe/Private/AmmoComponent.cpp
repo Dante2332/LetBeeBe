@@ -6,6 +6,7 @@
 #include "ShootComponent.h"
 #include "WeaponDataAsset.h"
 #include "PlayerMovementComponent.h"
+#include "WeaponManager.h"
 // Sets default values for this component's properties
 UAmmoComponent::UAmmoComponent()
 {}

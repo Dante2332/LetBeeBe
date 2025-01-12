@@ -7,6 +7,7 @@
 #include "Gun.h"
 #include "PlayerMovementComponent.h"
 #include "WeaponDataAsset.h"
+#include "WeaponManager.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
 
 // Sets default values for this component's properties
@@ -46,7 +47,15 @@ void UShootComponent::BindHandleShoot()
 
 void UShootComponent::HandleShoot(bool bShouldShoot)
 {
-	bShouldShoot ? StartShooting() : StopShooting();
+	if (GunOwner == GunOwner->GetWeaponManager()->GetEquippedWeapon() && bShouldShoot)
+	{
+		StartShooting();
+	}
+	else
+	{
+		StopShooting();
+	}
+	
 }
 
 void UShootComponent::Fire()
