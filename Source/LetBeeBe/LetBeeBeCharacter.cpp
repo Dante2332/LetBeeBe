@@ -9,8 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Gun.h"
 #include "HealthComponent.h"
+#include "WeaponManager.h"
 #include "Components/Timelinecomponent.h"
 #include "InputActionValue.h"
 #include "MovieSceneTracksComponentTypes.h"
@@ -42,7 +42,7 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
+	WeaponManager = CreateDefaultSubobject<UWeaponManager>("WeaponManager");
 	StartCameraBoomLength = GetCameraBoom()->TargetArmLength;
 }
 
@@ -57,7 +57,6 @@ void ALetBeeBeCharacter::BeginPlay()
 	PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
 	PlayerHUD->SetOwner(this);
 	
-	SpawnWeapon();
 	
 }
 
@@ -66,14 +65,4 @@ void ALetBeeBeCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ALetBeeBeCharacter::SpawnWeapon()
-{
-	if (!SecondaryWeapon)
-	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = this;
-		SecondaryWeapon = GetWorld()->SpawnActor<AGun>(SecondaryWeaponClass, SpawnParameters);
-		SecondaryWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_r");
-		SecondaryWeapon->SetOwner(this);
-	}
-}
+

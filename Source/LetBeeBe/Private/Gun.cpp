@@ -7,6 +7,7 @@
 #include "PlayerMovementComponent.h"
 #include "ShootComponent.h"
 #include "WeaponDataAsset.h"
+#include "WeaponManager.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
 
 
@@ -29,7 +30,7 @@ void AGun::BeginPlay()
 {
 	ClipCurrentAmmo = ClipSize;
 	Super::BeginPlay();
-
+	
 	InitializeWeaponProperties();
 }
 
@@ -41,17 +42,15 @@ void AGun::Tick(float DeltaTime)
 
 UPlayerMovementComponent* AGun::GetPlayerMovementComponent() const
 {
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController()))
-	{
-		ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(PlayerController->GetPawn());
-		
-		if (PlayerCharacter)
-		{
-			return PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>();
-		}
-		return nullptr;
-	}
-	return nullptr;
+
+	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	return PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>();
+	
+}
+UWeaponManager* AGun::GetWeaponManager() const
+{
+	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	return PlayerCharacter->FindComponentByClass<UWeaponManager>();
 }
 
 void AGun::InitializeWeaponProperties()

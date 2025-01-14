@@ -7,6 +7,7 @@
 #include "PlayerHUD.h"
 #include "Logging/LogMacros.h"
 #include "LetBeeBeCharacter.generated.h"
+class UWeaponManager;
 class AGun;
 class UHealthComponent;
 class USpringArmComponent;
@@ -36,22 +37,12 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TSubclassOf<AGun> PrimaryWeaponClass;
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TSubclassOf<AGun> SecondaryWeaponClass;
-	
-	UPROPERTY()
-	AGun* PrimaryWeapon;	
-	
-	UPROPERTY()
-	AGun* SecondaryWeapon;
 	
 	UPROPERTY()
 	APlayerHUD* PlayerHUD;
-
-	void SpawnWeapon();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UWeaponManager* WeaponManager;
 
 public:
 	ALetBeeBeCharacter();
@@ -62,17 +53,17 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE class APlayerHUD* GetPlayerHUD() const { return PlayerHUD; }
 	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
-	FORCEINLINE float GetStartCameraBoomLength() { return StartCameraBoomLength; }
-	FORCEINLINE float GetAimingCameraBoomLength() { return AimingCameraBoomLength; }
+	FORCEINLINE float GetStartCameraBoomLength() const { return StartCameraBoomLength; }
+	FORCEINLINE float GetAimingCameraBoomLength() const { return AimingCameraBoomLength; }
 
 
 protected:
 
 	
 	// To add mapping context
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 	
-	virtual void Tick(float DeltaTime);
+	virtual void Tick(float DeltaTime) override;
 
 
 };
