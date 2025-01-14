@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
-class UWeaponManager;
 class UShootComponent;
 class UAmmoComponent;
 enum class EWeaponType : uint8;
@@ -46,8 +45,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* WeaponMesh;
 	FORCEINLINE UAmmoComponent* GetAmmoComponent() const { return AmmoComponent; } 
-	FORCEINLINE UShootComponent* GetShootComponent() const { return ShootComponent; }
-	UWeaponManager* GetWeaponManager() const;
+	FORCEINLINE UShootComponent* GetShootComponent() const { return ShootComponent; } 
 	UPlayerMovementComponent* GetPlayerMovementComponent() const;
 
 private:

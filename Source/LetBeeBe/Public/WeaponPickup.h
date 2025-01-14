@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "WeaponPickup.generated.h"
 
-class USphereComponent;
 class UWeaponDataAsset;
 
 UCLASS()
@@ -27,9 +26,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* WeaponMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USphereComponent* SphereCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float Cost;

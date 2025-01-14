@@ -10,8 +10,6 @@
 DECLARE_DELEGATE_OneParam(FAimSignature, bool bIsAiming);
 DECLARE_DELEGATE_OneParam(FShotSignature, bool bShouldShoot);
 DECLARE_DELEGATE(FReloadSignature);
-DECLARE_DELEGATE_OneParam(FWeaponSwitchSignature, int32 WeaponIndex);
-
 
 class USpringArmComponent;
 class ALetBeeBeCharacter;
@@ -31,9 +29,7 @@ public:
 	
 	FAimSignature OnAim;
 	FShotSignature OnShoot;
-	FReloadSignature OnReload;
-	FWeaponSwitchSignature OnWeaponSwitch;
-
+	FReloadSignature OnReload;	
 
 protected:
 	virtual void BeginPlay() override;
@@ -76,8 +72,6 @@ private:
 	void Look(const FInputActionValue& Value);
 	
 	void Reload();
-
-	void SwitchWeapon(const FInputActionValue& Value);
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -104,8 +98,5 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ReloadAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SwitchWeaponAction;
-	
+
 };

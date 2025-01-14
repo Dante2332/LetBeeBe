@@ -70,9 +70,6 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 		
 		//Reloading
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Reload);
-
-		//SwitchingWeapon
-		EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::SwitchWeapon);
 	}
 	else
 	{
@@ -203,14 +200,3 @@ void UPlayerMovementComponent::Reload()
 		OnReload.Execute();
 	}
 }
-
-void UPlayerMovementComponent::SwitchWeapon(const FInputActionValue& Value)
-{
-	if (OnWeaponSwitch.IsBound())
-	{
-		int32 WeaponSlot = FMath::RoundToInt32(Value.Get<float>());	
-		OnWeaponSwitch.Execute(WeaponSlot);
-	}
-}
-
-
