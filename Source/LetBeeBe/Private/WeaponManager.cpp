@@ -80,7 +80,9 @@ void UWeaponManager::EquipPrimary()
 
 void UWeaponManager::EquipSecondary()
 {
-	if (!PrimaryWeapon) return;
+	if (EquippedWeapon == SecondaryWeapon) return;
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Secondary Equipped"));
+
 	SecondaryWeapon->SetActorEnableCollision(true);
 	SecondaryWeapon->SetActorHiddenInGame(false);
 	PrimaryWeapon->SetActorEnableCollision(false);
@@ -101,9 +103,12 @@ void UWeaponManager::SwitchWeapon(int32 WeaponIndex)
 	{
 	case 1:
 		EquipPrimary();
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Primary Equipped"));
 		break;
 	case 2:
+
 		EquipSecondary();
+
 		break;
 	default:
 		break;
