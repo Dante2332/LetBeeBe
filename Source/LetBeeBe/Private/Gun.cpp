@@ -28,7 +28,6 @@ AGun::AGun()
 // Called when the game starts or when spawned
 void AGun::BeginPlay()
 {
-	ClipCurrentAmmo = ClipSize;
 	Super::BeginPlay();
 	
 	InitializeWeaponProperties();
@@ -60,5 +59,6 @@ void AGun::InitializeWeaponProperties()
 	WeaponName = WeaponDataAsset->WeaponInfo.Name;
 	WeaponType = WeaponDataAsset->WeaponInfo.WeaponType;
 }
+
 
 

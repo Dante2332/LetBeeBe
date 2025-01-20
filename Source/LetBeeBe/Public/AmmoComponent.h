@@ -17,16 +17,18 @@ class LETBEEBE_API UAmmoComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
+	void Reinitialize();
 	// Sets default values for this component's properties
 	UAmmoComponent();
 	void DecrementAmmo();
+	FORCEINLINE void SetOwner(AGun* Owner) {GunOwner = Owner;}
 	FORCEINLINE int GetClipCurrentAmmo() const { return ClipCurrentAmmo; }
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
+	
 private:
 	FTimerHandle ReloadTimer;
 	UPROPERTY()

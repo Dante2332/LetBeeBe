@@ -6,6 +6,8 @@
 #include "EditorCategoryUtils.h"
 #include "Gun.h"
 #include "PlayerMovementComponent.h"
+#include "ShootComponent.h"
+#include "AmmoComponent.h"
 #include "GameFramework/Character.h"
 
 // Sets default values for this component's properties
@@ -24,9 +26,6 @@ void UWeaponManager::BeginPlay()
 {
 	Super::BeginPlay();
 	SpawnSecondary();
-	SecondaryWeapon->SetActorHiddenInGame(true);
-	SecondaryWeapon->SetActorEnableCollision(false);
-	SpawnPrimary();
 	BindWeaponSwitchHandle();
 }
 
@@ -63,7 +62,7 @@ void UWeaponManager::SpawnPrimary()
 		PrimaryWeapon = GetWorld()->SpawnActor<AGun>(PrimaryWeaponClass, SpawnParameters);
 		PrimaryWeapon->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_R");
 		PrimaryWeapon->SetOwner(GetOwner());
-		EquippedWeapon = PrimaryWeapon;
+		EquipPrimary();
 }
 
 void UWeaponManager::EquipPrimary()
@@ -99,6 +98,7 @@ void UWeaponManager::BindWeaponSwitchHandle()
 
 void UWeaponManager::SwitchWeapon(int32 WeaponIndex)
 {
+	EquippedWeapon->GetShootComponent()->StopShooting();
 	switch (WeaponIndex)
 	{
 	case 1:
@@ -112,8 +112,11 @@ void UWeaponManager::SwitchWeapon(int32 WeaponIndex)
 		break;
 	default:
 		break;
-			
 	}
+	EquippedWeapon->GetShootComponent()->Reinitialize();
+	EquippedWeapon->GetAmmoComponent()->Reinitialize();
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Equipped Weapon: %s"), *EquippedWeapon->GetName()));
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Ammo Component Owner: %s"), *EquippedWeapon->GetAmmoComponent()->GetOwner()->GetName()));
 }
 
 

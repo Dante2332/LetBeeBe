@@ -33,9 +33,10 @@ private:
 	AGun* PrimaryWeapon;
 	UPROPERTY()
 	AGun* SecondaryWeapon;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AGun* EquippedWeapon;
 	void SpawnSecondary();
+	UFUNCTION(BlueprintCallable)
 	void SpawnPrimary();
 	void EquipPrimary();
 	void EquipSecondary();

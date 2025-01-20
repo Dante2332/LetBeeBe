@@ -23,19 +23,13 @@ public:
 	// Sets default values for this actor's properties
 	AGun();
 	FOnWeaponDataAssetInitialized OnWeaponDataAssetInitialized;
+	void InitializeWeaponProperties();
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	FName WeaponName;
-	float Damage;
-	bool bIsFullAuto;
 	EWeaponType WeaponType;
-	int32 TotalAmmo;
-	int32 ClipSize;
-	int32 ClipCurrentAmmo;
-	float ReloadSpeed;
-	float RateOfFire;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponProperties")
 	UWeaponDataAsset* WeaponDataAsset;
@@ -51,13 +45,13 @@ public:
 	UPlayerMovementComponent* GetPlayerMovementComponent() const;
 
 private:
+
 	UPROPERTY(VisibleAnywhere)
 	UAmmoComponent* AmmoComponent;
 	UPROPERTY(VisibleAnywhere)
 	UShootComponent* ShootComponent;
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
-	void InitializeWeaponProperties();
 	
 
 };

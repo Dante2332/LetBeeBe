@@ -47,7 +47,7 @@ void UShootComponent::BindHandleShoot()
 
 void UShootComponent::HandleShoot(bool bShouldShoot)
 {
-	if (GunOwner == GunOwner->GetWeaponManager()->GetEquippedWeapon() && bShouldShoot)
+	if (bShouldShoot)
 	{
 		StartShooting();
 	}
@@ -85,6 +85,7 @@ void UShootComponent::Fire()
 			StopShooting();
 		}
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Ammo After Shooting: %d"), AmmoComponent->GetClipCurrentAmmo()));
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("Owner: %s"), *GunOwner->GetName()));
 }
 
 void UShootComponent::StartShooting()
@@ -96,6 +97,7 @@ void UShootComponent::StartShooting()
 		bIsShooting = true;
 		Fire();
 		GetWorld()->GetTimerManager().SetTimer(FullAutoFireTimer, this, &UShootComponent::Fire, RateOfFire, true);
+		
 	}
 	else
 	{
@@ -110,4 +112,12 @@ void UShootComponent::StopShooting()
 		GetWorld()->GetTimerManager().ClearTimer(FullAutoFireTimer);
 	}
 }
+void UShootComponent::Reinitialize()
+{
+	GunOwner = Cast<AGun>(GetOwner());
+	AmmoComponent = GunOwner ? GunOwner->GetAmmoComponent() : nullptr;
 
+	// Ponowne bindowanie zdarzeń
+	BindHandleInitialize();
+	BindHandleShoot();
+}

@@ -16,6 +16,7 @@ void UAmmoComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	GunOwner = Cast<AGun>(GetOwner());
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, FString::Printf(TEXT("OWNER: %s"), *GunOwner->GetName()));
 	ShootComponent = GunOwner->GetShootComponent();
 	BindHandleInitialize();
 	BindStartReloading();
@@ -58,6 +59,15 @@ void UAmmoComponent::HandleReload()
 void UAmmoComponent::DecrementAmmo()
 {
 	--ClipCurrentAmmo;
+}
+void UAmmoComponent::Reinitialize()
+{
+	GunOwner = Cast<AGun>(GetOwner());
+	ShootComponent = GunOwner ? GunOwner->GetShootComponent() : nullptr;
+
+	// Ponowne bindowanie zdarzeń
+	BindHandleInitialize();
+	BindStartReloading();
 }
 
 

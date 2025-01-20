@@ -18,8 +18,13 @@ class LETBEEBE_API UShootComponent : public UActorComponent
 
 public:	
 	UShootComponent();
+	FORCEINLINE void SetOwner(AGun* Owner) {GunOwner = Owner;}
 	FORCEINLINE bool GetIsReloading() {	return bIsReloading; }
 	FORCEINLINE void SetIsReloading(bool b) {	bIsReloading = b; }
+	UPROPERTY(EditAnywhere)
+	AGun* GunOwner;
+	void Reinitialize();
+	void StopShooting();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -37,9 +42,6 @@ private:
 	void HandleShoot(bool bShouldShoot);
 	void Fire();
 	void StartShooting();
-	void StopShooting();
-	UPROPERTY(EditAnywhere)
-	AGun* GunOwner;
 	UPROPERTY()
 	UAmmoComponent* AmmoComponent;
 };
