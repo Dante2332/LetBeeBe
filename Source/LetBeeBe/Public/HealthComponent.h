@@ -22,7 +22,7 @@ public:
 	// Sets default values for this component's properties
 	
 	UHealthComponent();
-	UPROPERTY(BlueprintAssignable, Category="Health")
+	UPROPERTY(BlueprintAssignable, Category="Health")	
 	FComponentDeadSignature OnComponentDead;
 	UPROPERTY(BlueprintAssignable, Category="Health")
 	FComponentDamagedSignature OnComponentDamaged;

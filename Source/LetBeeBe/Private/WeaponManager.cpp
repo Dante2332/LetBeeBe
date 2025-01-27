@@ -25,7 +25,8 @@ UWeaponManager::UWeaponManager()
 void UWeaponManager::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnSecondary();
+	SpawnWeapon(SecondaryWeaponClass);
+	SpawnWeapon(PrimaryWeaponClass);
 	BindWeaponSwitchHandle();
 }
 
@@ -38,56 +39,7 @@ void UWeaponManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	// ...
 }
 
-// Spawn Secondary Weapon at BeginPlay
-void UWeaponManager::SpawnSecondary()
-{
-	if (!SecondaryWeapon)
-	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
-		SecondaryWeapon = GetWorld()->SpawnActor<AGun>(SecondaryWeaponClass, SpawnParameters);
-		SecondaryWeapon->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_r");
-		SecondaryWeapon->SetOwner(GetOwner());
-		EquippedWeapon = SecondaryWeapon;
-	}
-}
-void UWeaponManager::SpawnPrimary()
-{
-	if (PrimaryWeapon)
-	{
-		PrimaryWeapon->Destroy();
-	}
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
-		PrimaryWeapon = GetWorld()->SpawnActor<AGun>(PrimaryWeaponClass, SpawnParameters);
-		PrimaryWeapon->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_R");
-		PrimaryWeapon->SetOwner(GetOwner());
-		EquipPrimary();
-}
 
-void UWeaponManager::EquipPrimary()
-{
-	if (PrimaryWeapon)
-	{
-		SecondaryWeapon->SetActorEnableCollision(false);
-		SecondaryWeapon->SetActorHiddenInGame(true);
-		PrimaryWeapon->SetActorEnableCollision(true);
-		PrimaryWeapon->SetActorHiddenInGame(false);
-		EquippedWeapon = PrimaryWeapon;
-	}
-}
-
-void UWeaponManager::EquipSecondary()
-{
-	if (EquippedWeapon == SecondaryWeapon) return;
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Secondary Equipped"));
-
-	SecondaryWeapon->SetActorEnableCollision(true);
-	SecondaryWeapon->SetActorHiddenInGame(false);
-	PrimaryWeapon->SetActorEnableCollision(false);
-	PrimaryWeapon->SetActorHiddenInGame(true);
-	EquippedWeapon = SecondaryWeapon;
-}
 void UWeaponManager::BindWeaponSwitchHandle()
 {
 	APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
@@ -99,25 +51,62 @@ void UWeaponManager::BindWeaponSwitchHandle()
 void UWeaponManager::SwitchWeapon(int32 WeaponIndex)
 {
 	EquippedWeapon->GetShootComponent()->StopShooting();
+	
 	switch (WeaponIndex)
 	{
 	case 1:
-		EquipPrimary();
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Primary Equipped"));
+		// Check if Primary Weapon should be equipped
+		if (EquippedWeapon->GetClass() != SecondaryWeaponClass) return;
 		break;
 	case 2:
-
-		EquipSecondary();
-
+		//Check if Secondary Weapon should be equipped
+		if (EquippedWeapon->GetClass() == SecondaryWeaponClass) return;
 		break;
 	default:
 		break;
 	}
+	EquipWeapon(HiddenWeapon);
 	EquippedWeapon->GetShootComponent()->Reinitialize();
 	EquippedWeapon->GetAmmoComponent()->Reinitialize();
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Equipped Weapon: %s"), *EquippedWeapon->GetName()));
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Ammo Component Owner: %s"), *EquippedWeapon->GetAmmoComponent()->GetOwner()->GetName()));
 }
+void UWeaponManager::SpawnWeapon(const TSubclassOf<AGun>& WeaponToSpawn)
+{
+	if (EquippedWeapon && EquippedWeapon->GetClass() != SecondaryWeaponClass)
+	{
+		EquippedWeapon->Destroy();
+	}
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = GetOwner();
+	AGun* SpawnedWeapon = GetWorld()->SpawnActor<AGun>(WeaponToSpawn, SpawnParameters);
+	SpawnedWeapon->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "weapon_R");
+	SpawnedWeapon->SetOwner(GetOwner());
+	EquipWeapon(SpawnedWeapon);
+}
 
+void UWeaponManager::EquipWeapon(AGun* WeaponToEquip)
+{
+		// Null Check
+	if (!EquippedWeapon)
+	{
+		EquippedWeapon = WeaponToEquip;
+	}
+	else
+	{
+		//Hide Old Weapon
+		EquippedWeapon->SetActorEnableCollision(false);
+		EquippedWeapon->SetActorHiddenInGame(true);
+		HiddenWeapon = EquippedWeapon;
+		// Equip New Weapon
+		EquippedWeapon = WeaponToEquip;
+		EquippedWeapon->SetActorEnableCollision(true);
+		EquippedWeapon->SetActorHiddenInGame(false);
+		// Set correct components
+		EquippedWeapon->GetShootComponent()->Reinitialize();
+		EquippedWeapon->GetAmmoComponent()->Reinitialize();
+	}
+	
+}
 
 
