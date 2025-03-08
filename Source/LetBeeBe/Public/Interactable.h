@@ -3,38 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interactable.h"
-#include "WeaponPickup.generated.h"
-
-class USphereComponent;
-class UWeaponDataAsset;
+#include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
+#include "Interactable.generated.h"
 
 UCLASS()
-class LETBEEBE_API AWeaponPickup : public AInteractable
+class LETBEEBE_API AInteractable : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AWeaponPickup();
-
+	AInteractable();
+	FORCEINLINE bool GetCanInteract() { return bCanInteract; } 
+	FORCEINLINE void SetCanInteract(bool CanInteract) { bCanInteract = CanInteract; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UWeaponDataAsset* WeaponDataAsset;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USkeletalMeshComponent* WeaponMesh;
+	USphereComponent* SphereCollision;
+	bool bCanInteract;
 
-	
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float Cost;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-private:
+
 };

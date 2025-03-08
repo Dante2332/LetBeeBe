@@ -12,6 +12,7 @@ class AGun;
 class UHealthComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UInteractionComponent;
 struct FTimeline;
 
 
@@ -43,6 +44,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	UWeaponManager* WeaponManager;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UInteractionComponent* InteractionComponent;
 
 public:
 	ALetBeeBeCharacter();
