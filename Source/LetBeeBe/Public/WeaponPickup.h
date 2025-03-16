@@ -21,6 +21,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void HandleInteract() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UWeaponDataAsset* WeaponDataAsset;
@@ -37,4 +38,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 private:
+
 };

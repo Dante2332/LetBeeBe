@@ -3,6 +3,9 @@
 
 #include "WeaponPickup.h"
 #include "WeaponDataAsset.h"
+#include "LetBeeBe/LetBeeBeCharacter.h"
+#include "WeaponManager.h"
+#include "Gun.h"
 
 // Sets default values
 AWeaponPickup::AWeaponPickup()
@@ -24,10 +27,22 @@ void AWeaponPickup::BeginPlay()
 	Cost = WeaponDataAsset->WeaponInfo.Cost;
 }
 
+void AWeaponPickup::HandleInteract()
+{
+	if (bCanInteract)
+	{
+		ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		UWeaponManager* WeaponManager = PlayerCharacter->GetWeaponManager();
+		WeaponManager->BuyWeapon(WeaponDataAsset->WeaponInfo.WeaponClass);
+	}
+	
+}
+
+
+
 // Called every frame
 void AWeaponPickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
-

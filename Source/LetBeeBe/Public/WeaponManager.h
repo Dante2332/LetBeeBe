@@ -19,6 +19,10 @@ public:
 	UWeaponManager();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	FORCEINLINE AGun* GetEquippedWeapon() const { return EquippedWeapon; }
+	FORCEINLINE AGun* GetHiddenWeapon() const { return HiddenWeapon; }
+    void SpawnWeapon(const TSubclassOf<AGun>& WeaponToSpawn);
+	void EquipWeapon(AGun* WeaponToEquip);
+	void BuyWeapon(const TSubclassOf<AGun>& WeaponToBuy);
 
 protected:
 	// Called when the game starts
@@ -38,7 +42,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AGun* EquippedWeapon;
 	void BindWeaponSwitchHandle();
-    void SpawnWeapon(const TSubclassOf<AGun>& WeaponToSpawn);
-	void EquipWeapon(AGun* WeaponToEquip);
 	void SwitchWeapon(int32 WeaponIndex);
+	bool CanBuyWeapon() const;
 };
+
+

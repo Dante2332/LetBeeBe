@@ -57,6 +57,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE class APlayerHUD* GetPlayerHUD() const { return PlayerHUD; }
 	FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	FORCEINLINE class UWeaponManager* GetWeaponManager() const { return WeaponManager; }
 	FORCEINLINE float GetStartCameraBoomLength() const { return StartCameraBoomLength; }
 	FORCEINLINE float GetAimingCameraBoomLength() const { return AimingCameraBoomLength; }
 

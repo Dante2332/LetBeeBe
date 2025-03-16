@@ -73,6 +73,9 @@ void UPlayerMovementComponent::SetupPlayerInputComponent(class UInputComponent* 
 
 		//SwitchingWeapon
 		EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::SwitchWeapon);
+
+		//Interaction
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &UPlayerMovementComponent::Interact);
 	}
 	else
 	{
@@ -212,5 +215,15 @@ void UPlayerMovementComponent::SwitchWeapon(const FInputActionValue& Value)
 		OnWeaponSwitch.Execute(WeaponSlot);
 	}
 }
+
+void UPlayerMovementComponent::Interact()
+{
+	if (OnInteract.IsBound())
+	{
+		OnInteract.Execute();
+
+	}
+}
+
 
 

@@ -46,7 +46,7 @@ void UInteractionComponent::OnSphereBeginOverlap(UPrimitiveComponent* Overlapped
 		GetWorld()->GetTimerManager().SetTimer(InteractionTimeHandle, Delegate, 0.2f, true);
 		
 		
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("OverlappedActor: %s"), *OtherActor->GetName()));
+		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("OverlappedActor: %s"), *OtherActor->GetName()));
 	}
 }
 
@@ -61,7 +61,7 @@ void UInteractionComponent::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCo
 		{
 			OverlappedActor->SetCanInteract(false);
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EndOverlapActor: %s"), *OtherActor->GetName()));
+		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EndOverlapActor: %s"), *OtherActor->GetName()));
 
 	}
 }
@@ -74,7 +74,7 @@ void UInteractionComponent::CheckForInteraction(AActor* ActorToCheck)
 	FVector End = Start + GetOwner()->GetActorForwardVector() * 100.0f;
 	if ( GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("CanInteract")));
+		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("CanInteract")));
 		if (!OverlappedActor->GetCanInteract())
 		{
 			OverlappedActor->SetCanInteract(true);

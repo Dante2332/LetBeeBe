@@ -20,11 +20,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+	virtual void HandleInteract();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USphereComponent* SphereCollision;
 	bool bCanInteract;
-
+private:
+	void BindHandleInteract();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

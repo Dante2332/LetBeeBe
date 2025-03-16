@@ -6,7 +6,9 @@
 #include "Engine/DataAsset.h"
 #include "WeaponDataAsset.generated.h"
 
-UENUM (BlueprintType)
+class AGun;
+
+UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Primary,
@@ -17,7 +19,9 @@ USTRUCT (BlueprintType)
 struct FWeaponInfo
 {
 	GENERATED_USTRUCT_BODY()
-
+	UPROPERTY (EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AGun> WeaponClass;
+	
 	UPROPERTY (EditAnywhere, BlueprintReadWrite)
 	FName Name;
 

@@ -26,7 +26,7 @@ void UWeaponManager::BeginPlay()
 {
 	Super::BeginPlay();
 	SpawnWeapon(SecondaryWeaponClass);
-	SpawnWeapon(PrimaryWeaponClass);
+	 
 	BindWeaponSwitchHandle();
 }
 
@@ -65,17 +65,24 @@ void UWeaponManager::SwitchWeapon(int32 WeaponIndex)
 	default:
 		break;
 	}
-	EquipWeapon(HiddenWeapon);
-	EquippedWeapon->GetShootComponent()->Reinitialize();
-	EquippedWeapon->GetAmmoComponent()->Reinitialize();
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Equipped Weapon: %s"), *EquippedWeapon->GetName()));
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Ammo Component Owner: %s"), *EquippedWeapon->GetAmmoComponent()->GetOwner()->GetName()));
+	if (HiddenWeapon)
+	{
+		EquipWeapon(HiddenWeapon);
+		EquippedWeapon->GetShootComponent()->Reinitialize();
+		EquippedWeapon->GetAmmoComponent()->Reinitialize();
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Equipped Weapon: %s"), *EquippedWeapon->GetName()));
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Ammo Component Owner: %s"), *EquippedWeapon->GetAmmoComponent()->GetOwner()->GetName()));
+	}
 }
 void UWeaponManager::SpawnWeapon(const TSubclassOf<AGun>& WeaponToSpawn)
 {
 	if (EquippedWeapon && EquippedWeapon->GetClass() != SecondaryWeaponClass)
 	{
 		EquippedWeapon->Destroy();
+		// if (HiddenWeapon->GetClass() != SecondaryWeaponClass)
+		// {
+		// 	HiddenWeapon->Destroy();
+		// }
 	}
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = GetOwner();
@@ -110,3 +117,18 @@ void UWeaponManager::EquipWeapon(AGun* WeaponToEquip)
 }
 
 
+void UWeaponManager::BuyWeapon(const TSubclassOf<AGun>& WeaponToBuy)
+{
+	if (WeaponToBuy == EquippedWeapon->GetClass())
+	{
+		return;
+	}
+	if (HiddenWeapon && WeaponToBuy == HiddenWeapon->GetClass())
+	{
+		return;
+	}
+	
+	SpawnWeapon(WeaponToBuy);
+	GEngine->AddOnScreenDebugMessage(-1,	10.0f, FColor::Red, FString::Printf(TEXT("Spawned Weapon")));
+	}
+}
