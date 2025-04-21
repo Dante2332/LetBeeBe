@@ -2,8 +2,7 @@
 
 
 #include "InteractionComponent.h"
-
-#include "Interactable.h"
+#include "InteractionInterface.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values for this component's properties
@@ -38,53 +37,66 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 void UInteractionComponent::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 																			int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->ActorHasTag("Interactable"))
+	if (OtherActor && OtherActor->Implements<UInteractionInterface>())
 	{
-		
+		OverlappingActors.Add(OtherActor);
 		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, FName("CheckForInteraction"), OtherActor);
+		Delegate.BindUFunction(this, FName("CheckForInteraction"), OverlappingActors);
 		GetWorld()->GetTimerManager().SetTimer(InteractionTimeHandle, Delegate, 0.2f, true);
 		
-		
-		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("OverlappedActor: %s"), *OtherActor->GetName()));
 	}
 }
 
 void UInteractionComponent::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 														UPrimitiveComponent* OtherComp, int OtherBodyIndex)
 {
-	if (OtherActor && OtherActor->ActorHasTag("Interactable"))
+	if (OtherActor && OtherActor->Implements<UInteractionInterface>())
 	{
-		AInteractable* OverlappedActor = Cast<AInteractable>(OtherActor);
-		GetWorld()->GetTimerManager().ClearTimer(InteractionTimeHandle);
+		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(OtherActor);
 		if (OverlappedActor->GetCanInteract())
 		{
 			OverlappedActor->SetCanInteract(false);
+			if (OverlappingActors.Contains(OtherActor))
+			{
+				OverlappingActors.Remove(OtherActor);
+			}
 		}
-		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EndOverlapActor: %s"), *OtherActor->GetName()));
+		if (OverlappingActors.IsEmpty())
+		{
+			GetWorld()->GetTimerManager().ClearTimer(InteractionTimeHandle);
+		}
+		
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EndOverlapActor: %s"), *OtherActor->GetName()));
 
 	}
 }
 
-void UInteractionComponent::CheckForInteraction(AActor* ActorToCheck)
+void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
 {
-	AInteractable* OverlappedActor = Cast<AInteractable>(ActorToCheck);
-	FHitResult Hit;
-	FVector Start = GetOwner()->GetActorLocation();
-	FVector End = Start + GetOwner()->GetActorForwardVector() * 100.0f;
-	if ( GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility))
+	for (AActor* Actor : ActorsToCheck)
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("CanInteract")));
-		if (!OverlappedActor->GetCanInteract())
+		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(Actor);
+		if (!OverlappedActor) return; 
+		FHitResult Hit;
+		FVector Start = GetOwner()->GetActorLocation();
+		FVector End = Start + GetOwner()->GetActorForwardVector() * 100.0f;
+		if ( GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility))
 		{
-			OverlappedActor->SetCanInteract(true);
+			if (!OverlappedActor->GetCanInteract())
+			{
+				OverlappedActor->SetCanInteract(true);
+			}
 		}
-	}
-	else
-	{
-		if (OverlappedActor->GetCanInteract())
+		else
 		{
-			OverlappedActor->SetCanInteract(false);
+			if (OverlappedActor->GetCanInteract())
+			{
+				OverlappedActor->SetCanInteract(false);
+				if (OverlappingActors.Contains(Actor))
+				{
+					OverlappingActors.Remove(Actor);
+				}
+			}
 		}
 	}
 }

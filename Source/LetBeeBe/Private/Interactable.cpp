@@ -17,6 +17,10 @@ AInteractable::AInteractable()
 	RootComponent = SphereCollision;
 }
 
+void AInteractable::HandleInteract(AActor* Interactor)
+{
+}
+
 // Called when the game starts or when spawned
 void AInteractable::BeginPlay()
 {
@@ -26,16 +30,14 @@ void AInteractable::BeginPlay()
 	DrawDebugSphere(GetWorld(), SphereCollision->GetComponentLocation(),SphereCollision->GetScaledSphereRadius(), 32, FColor::White, true);
 }
 
-void AInteractable::HandleInteract()
-{
-
-}
 
 
 void AInteractable::BindHandleInteract()
 {
 	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>()->OnInteract.BindUObject(this, &AInteractable::HandleInteract);
+	PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>()->OnInteract.AddUObject(this, &AInteractable::HandleInteract);
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Bind: %s"), *this->GetName()));
+
 }
 
 // Called every frame

@@ -21,6 +21,7 @@ UWeaponManager::UWeaponManager()
 }
 
 
+
 // Called when the game starts
 void UWeaponManager::BeginPlay()
 {
@@ -94,6 +95,7 @@ void UWeaponManager::SpawnWeapon(const TSubclassOf<AGun>& WeaponToSpawn)
 
 void UWeaponManager::EquipWeapon(AGun* WeaponToEquip)
 {
+	if (!bCanUseGun) return;
 		// Null Check
 	if (!EquippedWeapon)
 	{
@@ -130,5 +132,30 @@ void UWeaponManager::BuyWeapon(const TSubclassOf<AGun>& WeaponToBuy)
 	
 	SpawnWeapon(WeaponToBuy);
 	GEngine->AddOnScreenDebugMessage(-1,	10.0f, FColor::Red, FString::Printf(TEXT("Spawned Weapon")));
+}
+
+void UWeaponManager::DisableWeapon()
+{
+	if (!EquippedWeapon) return;
+	EquippedWeapon->SetActorEnableCollision(false);
+	EquippedWeapon->SetActorHiddenInGame(true);
+	bCanUseGun = false;
+}
+void UWeaponManager::UnableWeapon()
+{
+	EquippedWeapon->SetActorEnableCollision(true);
+	EquippedWeapon->SetActorHiddenInGame(false);
+	bCanUseGun = true;
+}
+void UWeaponManager::SetCanUseGun(bool bNewState)
+{
+	bCanUseGun = bNewState;
+	if (bCanUseGun)
+	{
+		UnableWeapon();
+	}
+	else
+	{
+		DisableWeapon();
 	}
 }

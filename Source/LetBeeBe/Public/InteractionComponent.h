@@ -32,7 +32,9 @@ private:
 	USphereComponent* InteractionSphere;
 	FTimerHandle InteractionTimeHandle;
 	UFUNCTION()
-	void CheckForInteraction(AActor* ActorToCheck);
+	void CheckForInteraction(TArray<AActor*> ActorsToCheck);
+	UPROPERTY()
+	TArray<AActor*> OverlappingActors;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

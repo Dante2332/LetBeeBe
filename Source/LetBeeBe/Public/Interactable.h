@@ -3,25 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InteractionInterface.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "Interactable.generated.h"
 
 UCLASS()
-class LETBEEBE_API AInteractable : public AActor
+class LETBEEBE_API AInteractable : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AInteractable();
-	FORCEINLINE bool GetCanInteract() { return bCanInteract; } 
-	FORCEINLINE void SetCanInteract(bool CanInteract) { bCanInteract = CanInteract; }
+	virtual void HandleInteract(AActor* Interactor) override;
+	virtual bool GetCanInteract() const override { return bCanInteract;}
+	virtual void SetCanInteract(bool bNewState) override { bCanInteract = bNewState; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void HandleInteract();
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USphereComponent* SphereCollision;
 	bool bCanInteract;

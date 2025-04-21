@@ -151,7 +151,7 @@ void UPlayerMovementComponent::StartSprinting()
 		StopAiming();
 	}
 	bIsSprinting = true;
-	MaxWalkSpeed = 600.f;
+	MaxWalkSpeed *= 2;
 }
 
 void UPlayerMovementComponent::StopSprinting()
@@ -220,7 +220,7 @@ void UPlayerMovementComponent::Interact()
 {
 	if (OnInteract.IsBound())
 	{
-		OnInteract.Execute();
+		OnInteract.Broadcast(GetOwner());
 
 	}
 }

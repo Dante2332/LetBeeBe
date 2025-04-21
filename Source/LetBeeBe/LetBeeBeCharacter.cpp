@@ -49,6 +49,9 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>("WeaponManager");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("InteractionComponent");
 	InteractionComponent->GetInteractionSphere()->SetupAttachment(RootComponent);
+
+	BeelderAttachment = CreateDefaultSubobject<USceneComponent>(TEXT("BeelderAttachment"));
+	BeelderAttachment->SetupAttachment(RootComponent);
 }
 
 void ALetBeeBeCharacter::BeginPlay()

@@ -13,6 +13,7 @@ class UHealthComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInteractionComponent;
+class UPlayerStateManagerComponent;
 struct FTimeline;
 
 
@@ -48,6 +49,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	UInteractionComponent* InteractionComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	USceneComponent* BeelderAttachment;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPlayerStateManagerComponent* PlayerStateManager;
 public:
 	ALetBeeBeCharacter();
 
@@ -60,6 +66,7 @@ public:
 	FORCEINLINE class UWeaponManager* GetWeaponManager() const { return WeaponManager; }
 	FORCEINLINE float GetStartCameraBoomLength() const { return StartCameraBoomLength; }
 	FORCEINLINE float GetAimingCameraBoomLength() const { return AimingCameraBoomLength; }
+	FORCEINLINE class USceneComponent* GetBeelderAttachment() const { return BeelderAttachment; }
 
 
 protected:

@@ -27,17 +27,16 @@ void AWeaponPickup::BeginPlay()
 	Cost = WeaponDataAsset->WeaponInfo.Cost;
 }
 
-void AWeaponPickup::HandleInteract()
+void AWeaponPickup::HandleInteract(AActor* Interactor)
 {
 	if (bCanInteract)
 	{
 		ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		UWeaponManager* WeaponManager = PlayerCharacter->GetWeaponManager();
 		WeaponManager->BuyWeapon(WeaponDataAsset->WeaponInfo.WeaponClass);
-	}
-	
-}
 
+	}
+}
 
 
 // Called every frame
