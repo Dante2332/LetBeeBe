@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "PlayerMovementComponent.generated.h"
 
+class UPlayerStateManagerComponent;
 DECLARE_DELEGATE_OneParam(FAimSignature, bool bIsAiming);
 DECLARE_DELEGATE_OneParam(FShotSignature, bool bShouldShoot);
 DECLARE_DELEGATE(FReloadSignature);
@@ -47,6 +48,8 @@ private:
 	
 	UPROPERTY()
 	ALetBeeBeCharacter* Owner;
+	UPROPERTY()
+	UPlayerStateManagerComponent* StateManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	float Sensitivity = 0.5f;

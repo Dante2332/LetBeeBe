@@ -17,6 +17,7 @@ public:
 	// Sets default values for this component's properties
 	UInteractionComponent();
 	FORCEINLINE USphereComponent* GetInteractionSphere() const { return InteractionSphere; }
+	FORCEINLINE void SetCanInteract(bool b) { bCanInteract = b; }
 
 protected:
 	// Called when the game starts
@@ -35,6 +36,7 @@ private:
 	void CheckForInteraction(TArray<AActor*> ActorsToCheck);
 	UPROPERTY()
 	TArray<AActor*> OverlappingActors;
+	bool bCanInteract = true;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

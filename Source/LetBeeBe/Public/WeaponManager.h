@@ -26,6 +26,7 @@ public:
 	FORCEINLINE AGun* GetEquippedWeapon() const { return EquippedWeapon; }
 	FORCEINLINE AGun* GetHiddenWeapon() const { return HiddenWeapon; }
 	FORCEINLINE bool GetCanUseGun() const {return bCanUseGun; }
+	FORCEINLINE void SetCanBuyWeapon(bool bNewCanBuy) {bCanBuyWeapon = bNewCanBuy; } 
 	void SetCanUseGun(bool bNewState);
 
 protected:
@@ -46,6 +47,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AGun* EquippedWeapon;
 	bool bCanUseGun = true;
+	bool bCanBuyWeapon = true;
 	void BindWeaponSwitchHandle();
 	void SwitchWeapon(int32 WeaponIndex);
 };

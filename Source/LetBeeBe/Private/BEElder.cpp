@@ -3,23 +3,29 @@
 
 #include "BEElder.h"
 
-#include "MovieSceneTracksComponentTypes.h"
-#include "WeaponManager.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "HiveSpot.h"
+#include "PlayerStateManagerComponent.h"
+#include "Chaos/Deformable/ChaosDeformableCollisionsProxy.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
+
 
 ABEElder::ABEElder()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(RootComponent);
 }
+void ABEElder::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
 void ABEElder::HandleInteract(AActor* Interactor)
 {
 	if (!bCanInteract) return;
 	if (bIsPicked)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Drop interacted");
-
 		Drop();
 	}
 	else
@@ -33,26 +39,92 @@ void ABEElder::Pickup()
 {
 	bIsPicked = true;
 	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	UWeaponManager* WeaponManager = Player->GetWeaponManager();
-	WeaponManager->SetCanUseGun(false);
 	AttachToComponent(Player->GetBeelderAttachment(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Picked up");
+	Player->GetPlayerStateManager()->SetState(EPlayerState::Carrying);
+	SphereCollision->SetSphereRadius(60.f);
 	
 }
 
-void ABEElder::Drop()
+bool ABEElder::Drop()
 {
-	bIsPicked = false;
-	ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	UWeaponManager* WeaponManager = Player->GetWeaponManager();
-	WeaponManager->SetCanUseGun(true);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "dropped");
+	if (!CanBeDropped()) return false;
+	if (TryPlaceOnHiveSpot() || TryPlaceOnGround())
+	{
+		bIsPicked = false;
+		ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "dropped");
+		Player->GetPlayerStateManager()->SetState(EPlayerState::Default);
+		SphereCollision->SetSphereRadius(200.f);
+		return true;
+	}
+	return false;
+}
+
+bool ABEElder::CanBeDropped()
+{
+	return bIsPicked;
+}
+
+bool ABEElder::TryPlaceOnGround()
+{
+	FHitResult Hit;
+	if (!TraceToGround(Hit)) return false;
+
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	
+	SetActorLocation(Hit.ImpactPoint + GroundDropOffset);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "PlaceOnGround");
+	return true;
 	
 }
+
+bool ABEElder::TryPlaceOnHiveSpot()
+{
+	AHiveSpot* Hive = FindHiveSpotInRange();
+	USceneComponent* BEElderLoc = Hive->GetBEElderPlacement();
+	if (!Hive || !BEElderLoc) return false;
+	
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorLocation(BEElderLoc->GetComponentLocation());
+	SetActorRotation(BEElderLoc->GetComponentRotation());
+	return true;
+}
+
+bool ABEElder::TraceToGround(FHitResult& OutHit)
+{
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0, 0, 1000);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	
+	bool bHit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+	return bHit && OutHit.GetActor()->ActorHasTag("Ground");
+}
+
+class AHiveSpot* ABEElder::FindHiveSpotInRange()
+{
+	TArray<AActor*> HiveSpots;
+	GetOverlappingActors(HiveSpots, AHiveSpot::StaticClass());
+	for (AActor* Actor : HiveSpots)
+	{
+		if (AHiveSpot* HiveSpot = Cast<AHiveSpot>(Actor))
+		{
+			return HiveSpot;
+		}
+	}
+	return nullptr;
+}
+
 
 void ABEElder::Tick(float DeltaTime)
 {
-	
+	DrawDebugSphere(
+	GetWorld(),
+	GetActorLocation(),            // środek sfery
+	SphereCollision->GetScaledSphereRadius(),          // promień
+	12,                            // ilość segmentów (im więcej, tym gładsza kula)
+	FColor::Green,                 // kolor
+	false,                         // trwała?
+	0.3f                           // czas widoczności (sekundy)
+);
 }

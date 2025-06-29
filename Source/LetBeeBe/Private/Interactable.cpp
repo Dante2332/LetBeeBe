@@ -36,7 +36,6 @@ void AInteractable::BindHandleInteract()
 {
 	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>()->OnInteract.AddUObject(this, &AInteractable::HandleInteract);
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Bind: %s"), *this->GetName()));
 
 }
 

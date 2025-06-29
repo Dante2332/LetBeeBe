@@ -2,6 +2,10 @@
 
 
 #include "PlayerStateManagerComponent.h"
+
+#include "InteractionComponent.h"
+#include "PlayerMovementComponent.h"
+#include "WeaponManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 
@@ -25,16 +29,24 @@ void UPlayerStateManagerComponent::BeginPlay()
 void UPlayerStateManagerComponent::SetState(EPlayerState NewState)
 {
 	CurrentState = NewState;
-
 	if (ACharacter* OwnerChar = Cast<ACharacter>(GetOwner()))
 	{
+		UPlayerMovementComponent* PlayerMovementComponent = Cast<UPlayerMovementComponent>(OwnerChar->GetCharacterMovement());
+		UWeaponManager* WeaponManager = OwnerChar->GetComponentByClass<UWeaponManager>();
 		switch (CurrentState)
 		{
 		case EPlayerState::Carrying:
-			OwnerChar->GetCharacterMovement()->MaxWalkSpeed *= 0.75f;
+			PlayerMovementComponent->MaxWalkSpeed *= 0.75f;
+			PlayerMovementComponent->OnAim.Execute(false);
+			WeaponManager->SetCanUseGun(false);
+			WeaponManager->SetCanBuyWeapon(false);
+			OwnerChar->GetComponentByClass<UInteractionComponent>()->SetCanInteract(false);
 			break;
 		default:
 			OwnerChar->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+			WeaponManager->SetCanUseGun(true);
+			WeaponManager->SetCanBuyWeapon(true);
+			OwnerChar->GetComponentByClass<UInteractionComponent>()->SetCanInteract(true);
 		
 		}
 	}
@@ -50,7 +62,7 @@ bool UPlayerStateManagerComponent::CanJump() const
 }
 bool UPlayerStateManagerComponent::CanShoot() const
 {
-	return CurrentState == EPlayerState::Default || CurrentState == EPlayerState::Aiming;
+	return CurrentState == EPlayerState::Default;
 }
 
 

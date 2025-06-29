@@ -4,19 +4,13 @@
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "HealthComponent.h"
 #include "WeaponManager.h"
-#include "Components/Timelinecomponent.h"
-#include "InputActionValue.h"
 #include "InteractionComponent.h"
-#include "MovieSceneTracksComponentTypes.h"
+#include "PlayerStateManagerComponent.h"
 #include "Components/SphereComponent.h"
-#include "EntitySystem/MovieSceneEntityManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +46,8 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 
 	BeelderAttachment = CreateDefaultSubobject<USceneComponent>(TEXT("BeelderAttachment"));
 	BeelderAttachment->SetupAttachment(RootComponent);
+
+	PlayerStateManager = CreateDefaultSubobject<UPlayerStateManagerComponent>(TEXT("PlayerStateManager"));
 }
 
 void ALetBeeBeCharacter::BeginPlay()
@@ -59,7 +55,7 @@ void ALetBeeBeCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	// Get player controller reference
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	const APlayerController*  PlayerController= Cast<APlayerController>(GetController());
 
 	//Get player HUD reference
 	PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());

@@ -6,9 +6,8 @@
 #include "Interactable.h"
 #include "BEElder.generated.h"
 
-/**
- * 
- */
+class AHiveSpot;
+
 UCLASS()
 class LETBEEBE_API ABEElder : public AInteractable
 {
@@ -18,11 +17,28 @@ public:
 	ABEElder();
 	virtual void HandleInteract(AActor* Interactor) override;
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	virtual void BeginPlay() override;
 	
 private:
 	void Pickup();
-	void Drop();
-	bool bIsPicked;
+	bool Drop();
+	bool CanBeDropped();
+	bool TryPlaceOnGround();
+	bool TryPlaceOnHiveSpot();
+	bool TraceToGround(FHitResult& OutHit);
+	class AHiveSpot* FindHiveSpotInRange();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPicked = false;
+
+	UPROPERTY(EditAnywhere)
+	FVector GroundDropOffset = FVector(0.f, 0.f, 30.f);
+
+	UPROPERTY(EditAnywhere)
+	float HiveSpotSearchRadius = 100.f;
 };

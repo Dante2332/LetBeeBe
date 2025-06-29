@@ -7,6 +7,7 @@
 #include "Engine/Canvas.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerMovementComponent.h"
+#include "PlayerStateManagerComponent.h"
 #include "GameFramework/SpringArmComponent.h"   
 #include "Components/TimelineComponent.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
@@ -98,7 +99,8 @@ void APlayerHUD::BindAimHandle()
 
 void APlayerHUD::AimHandle(bool bIsAiming)
 {
-	if (bIsAiming)
+	UPlayerStateManagerComponent* PlayerStateManager = GetPlayerCharacter()->GetPlayerStateManager();
+	if (bIsAiming && PlayerStateManager->GetState() == EPlayerState::Default)
 	{
 		CameraZoomTimeline->Play();
 	}

@@ -8,6 +8,7 @@
 #include "InputAction.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
+#include "PlayerStateManagerComponent.h"
 #include "Camera/CameraComponent.h"
 
 class AGun;
@@ -19,7 +20,6 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 	MinAnalogWalkSpeed = 20.f;
 	BrakingDecelerationWalking = 2000.f;
 	BrakingDecelerationFalling = 1500.0f;
-	StartWalkSpeed = MaxWalkSpeed;
 	bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 	
@@ -30,7 +30,7 @@ void UPlayerMovementComponent::BeginPlay()
 	Super::BeginPlay();
 	PlayerController = Cast<APlayerController>(GetController());
 	Owner = Cast<ALetBeeBeCharacter>(GetOwner());
-
+	StateManager = Owner->GetPlayerStateManager();
 	UPlayerMovementComponent::SetupPlayerInputComponent(Owner->InputComponent);
 }
 
@@ -151,6 +151,7 @@ void UPlayerMovementComponent::StartSprinting()
 		StopAiming();
 	}
 	bIsSprinting = true;
+	StartWalkSpeed = MaxWalkSpeed;
 	MaxWalkSpeed *= 2;
 }
 
@@ -162,6 +163,7 @@ void UPlayerMovementComponent::StopSprinting()
 
 void UPlayerMovementComponent::Aim()
 {
+	if (StateManager->GetState() != EPlayerState::Default) return; 
 	if (OnAim.IsBound())
 	{
 		if (bIsSprinting)
@@ -170,6 +172,7 @@ void UPlayerMovementComponent::Aim()
 		}
 		OnAim.Execute(true);
 		bIsAiming = true;
+		
 	}
 }
 
@@ -184,10 +187,18 @@ void UPlayerMovementComponent::StopAiming()
 
 void UPlayerMovementComponent::StartShooting()
 {
-	if (OnShoot.IsBound())
+	if (StateManager->GetState() != EPlayerState::Carrying)
 	{
-		OnShoot.Execute(true);
+		if (OnShoot.IsBound())
+		{
+			OnShoot.Execute(true);
+		}
 	}
+	else
+	{
+		OnInteract.Broadcast(GetOwner());
+	}
+	
 }
 
 void UPlayerMovementComponent::StopShooting()
@@ -218,6 +229,7 @@ void UPlayerMovementComponent::SwitchWeapon(const FInputActionValue& Value)
 
 void UPlayerMovementComponent::Interact()
 {
+	if (StateManager->GetState() == EPlayerState::Carrying) return;
 	if (OnInteract.IsBound())
 	{
 		OnInteract.Broadcast(GetOwner());

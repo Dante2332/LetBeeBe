@@ -15,7 +15,7 @@ UWeaponManager::UWeaponManager()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
 }
@@ -36,7 +36,6 @@ void UWeaponManager::BeginPlay()
 void UWeaponManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	// ...
 }
 
@@ -121,6 +120,8 @@ void UWeaponManager::EquipWeapon(AGun* WeaponToEquip)
 
 void UWeaponManager::BuyWeapon(const TSubclassOf<AGun>& WeaponToBuy)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, FString::Printf(TEXT("Can Buy: %hhd"), bCanBuyWeapon));
+
 	if (WeaponToBuy == EquippedWeapon->GetClass())
 	{
 		return;
@@ -129,9 +130,11 @@ void UWeaponManager::BuyWeapon(const TSubclassOf<AGun>& WeaponToBuy)
 	{
 		return;
 	}
-	
-	SpawnWeapon(WeaponToBuy);
-	GEngine->AddOnScreenDebugMessage(-1,	10.0f, FColor::Red, FString::Printf(TEXT("Spawned Weapon")));
+	if (bCanBuyWeapon)
+	{
+		SpawnWeapon(WeaponToBuy);
+		GEngine->AddOnScreenDebugMessage(-1,	10.0f, FColor::Red, FString::Printf(TEXT("Spawned Weapon")));
+	}
 }
 
 void UWeaponManager::DisableWeapon()
@@ -139,13 +142,11 @@ void UWeaponManager::DisableWeapon()
 	if (!EquippedWeapon) return;
 	EquippedWeapon->SetActorEnableCollision(false);
 	EquippedWeapon->SetActorHiddenInGame(true);
-	bCanUseGun = false;
 }
 void UWeaponManager::UnableWeapon()
 {
 	EquippedWeapon->SetActorEnableCollision(true);
 	EquippedWeapon->SetActorHiddenInGame(false);
-	bCanUseGun = true;
 }
 void UWeaponManager::SetCanUseGun(bool bNewState)
 {

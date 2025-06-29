@@ -67,7 +67,7 @@ public:
 	FORCEINLINE float GetStartCameraBoomLength() const { return StartCameraBoomLength; }
 	FORCEINLINE float GetAimingCameraBoomLength() const { return AimingCameraBoomLength; }
 	FORCEINLINE class USceneComponent* GetBeelderAttachment() const { return BeelderAttachment; }
-
+	FORCEINLINE class UPlayerStateManagerComponent* GetPlayerStateManager() const { return PlayerStateManager; }
 
 protected:
 

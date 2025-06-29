@@ -5,7 +5,8 @@
 #include "WeaponDataAsset.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
 #include "WeaponManager.h"
-#include "Gun.h"
+
+#include "PlayerStateManagerComponent.h"
 
 // Sets default values
 AWeaponPickup::AWeaponPickup()
@@ -29,9 +30,10 @@ void AWeaponPickup::BeginPlay()
 
 void AWeaponPickup::HandleInteract(AActor* Interactor)
 {
+	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	
 	if (bCanInteract)
 	{
-		ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		UWeaponManager* WeaponManager = PlayerCharacter->GetWeaponManager();
 		WeaponManager->BuyWeapon(WeaponDataAsset->WeaponInfo.WeaponClass);
 

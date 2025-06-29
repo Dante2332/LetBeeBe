@@ -73,6 +73,7 @@ void UInteractionComponent::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCo
 
 void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
 {
+	if (!bCanInteract) return;
 	for (AActor* Actor : ActorsToCheck)
 	{
 		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(Actor);

@@ -11,8 +11,6 @@ enum class EPlayerState : uint8
 {
 	Default UMETA(DisplayName = "Default"),
 	Carrying UMETA(DisplayName = "Carrying"),
-	Aiming UMETA(DisplayName = "Aiming"),
-	Reloading UMETA(DisplayName = "Reloading"),
 	Repairing UMETA(DisplayName = "Repairing")
 };
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
