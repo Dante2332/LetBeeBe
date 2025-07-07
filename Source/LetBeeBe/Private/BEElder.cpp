@@ -87,6 +87,9 @@ bool ABEElder::TryPlaceOnHiveSpot()
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorLocation(BEElderLoc->GetComponentLocation());
 	SetActorRotation(BEElderLoc->GetComponentRotation());
+
+	OnBeelderPlaced.Broadcast(this);
+	
 	return true;
 }
 

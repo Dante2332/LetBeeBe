@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Interactable.h"
 #include "BEElder.generated.h"
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBeelderPlacedSignature, ABEElder*, BEElder);
 
 class AHiveSpot;
 
@@ -15,6 +16,8 @@ class LETBEEBE_API ABEElder : public AInteractable
 
 public:
 	ABEElder();
+	UPROPERTY(BlueprintAssignable)
+	FOnBeelderPlacedSignature OnBeelderPlaced;
 	virtual void HandleInteract(AActor* Interactor) override;
 	virtual void Tick(float DeltaTime) override;
 
