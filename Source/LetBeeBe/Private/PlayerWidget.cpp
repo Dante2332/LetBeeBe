@@ -3,3 +3,12 @@
 
 #include "PlayerWidget.h"
 
+UCrosshairUI* UPlayerWidget::GetCrosshairUI() const
+{
+	return CrosshairUI;
+}
+
+UBuildUI* UPlayerWidget::GetBuildUI() const
+{
+	return BuildUI;
+}

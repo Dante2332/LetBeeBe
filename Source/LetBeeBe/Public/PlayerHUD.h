@@ -7,6 +7,7 @@
 #include "PlayerHUD.generated.h"
 
 
+class UPlayerWidget;
 class ALetBeeBeCharacter;
 struct FTimeline;
 /**
@@ -20,18 +21,27 @@ class LETBEEBE_API APlayerHUD : public AHUD
 public:
 	APlayerHUD();
 	~APlayerHUD();
-	virtual void DrawHUD() override;
-	float StartCrosshairGap = 15.0f;
-	float AimingCrosshairGap = 6.0f;
-	float CrosshairGap = 15.0f;
+
+
 
 private:
+	float StartCrosshairGap = 35.f;
+	float AimCrosshairGap = 12.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<class UPlayerWidget> PlayerWidgetClass;
+
+	UPROPERTY()
+	UPlayerWidget* PlayerWidget;
+	
 	UFUNCTION()
 	void HandleCameraZoomProgress(const float Value);
 	void BindCameraZoomCurve();
 	void BindAimHandle();
 	void AimHandle(bool bIsAiming);
 	ALetBeeBeCharacter* GetPlayerCharacter() const;
+	void ShowBuildUI();
+	void HideBuildUI();
 	
 	//Timeline for aiming
 	FTimeline* CameraZoomTimeline;

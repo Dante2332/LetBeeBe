@@ -2,15 +2,15 @@
 
 
 #include "PlayerHUD.h"
-
 #include "MaterialHLSLTree.h"
-#include "Engine/Canvas.h"
-#include "Kismet/GameplayStatics.h"
 #include "PlayerMovementComponent.h"
 #include "PlayerStateManagerComponent.h"
-#include "GameFramework/SpringArmComponent.h"   
+#include "PlayerWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/TimelineComponent.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
+#include "CrosshairUI.h"
+#include "BuildUI.h"
 
 APlayerHUD::APlayerHUD()
 {
@@ -19,47 +19,35 @@ APlayerHUD::APlayerHUD()
 	if (Curve.Succeeded())                                                                                                                      
 	{                                                                                                                                           
 		CameraZoomCurve = Curve.Object;                                                                                                         
-	}                                                                 
+	}
+	static ConstructorHelpers::FClassFinder<UPlayerWidget> BPPlayerWidgetClass(TEXT("/Game/ThirdPerson/UI/WBP_PlayerWidget"));
+	PlayerWidgetClass = BPPlayerWidgetClass.Class;
 }
 void APlayerHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	PlayerWidget = CreateWidget<UPlayerWidget>(GetWorld(), PlayerWidgetClass);
+	PlayerWidget->AddToViewport();	
+	PlayerWidget->GetCrosshairUI()->SetCrosshairGap(StartCrosshairGap);
 	BindCameraZoomCurve();
 	BindAimHandle();
 }
 
 
-void APlayerHUD::DrawHUD()
-{
-	Super::DrawHUD();
-	if (Canvas)
-	{
-		// Get screen center
-		const float CenterX = Canvas->ClipX / 2.0f;
-		const float CenterY = Canvas->ClipY / 2.0f;
 
-		// Set crosshair lines length
-		const float LineLength = 10.f;
-
-		FLinearColor CrosshairColor = FLinearColor::White;
-
-		DrawLine(CenterX - CrosshairGap - LineLength, CenterY, CenterX - CrosshairGap, CenterY, CrosshairColor);
-		DrawLine(CenterX + CrosshairGap, CenterY, CenterX + CrosshairGap + LineLength, CenterY, CrosshairColor);
-		DrawLine(CenterX, CenterY - CrosshairGap - LineLength, CenterX, CenterY - CrosshairGap, CrosshairColor);
-		DrawLine(CenterX, CenterY + CrosshairGap, CenterX, CenterY + CrosshairGap + LineLength , CrosshairColor);
-	}
-}
 void APlayerHUD::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CameraZoomTimeline->TickTimeline(DeltaTime); 
+	CameraZoomTimeline->TickTimeline(DeltaTime);
 }
 
 void APlayerHUD::HandleCameraZoomProgress(const float Value)
 {
-	ALetBeeBeCharacter* PlayerCharacter = GetPlayerCharacter();
-	PlayerCharacter->GetCameraBoom()->TargetArmLength = FMath::Lerp(PlayerCharacter->GetStartCameraBoomLength(), PlayerCharacter->GetAimingCameraBoomLength(), Value);    
-	CrosshairGap = FMath::Lerp(StartCrosshairGap, AimingCrosshairGap, Value);
+	if (PlayerWidget && PlayerWidget->GetCrosshairUI())
+	{
+		float Gap = FMath::Lerp(StartCrosshairGap, AimCrosshairGap, Value); // możesz trzymać w UPlayerWidget jeśli chcesz
+		PlayerWidget->GetCrosshairUI()->SetCrosshairGap(Gap);
+	}
 }
 
 ALetBeeBeCharacter* APlayerHUD::GetPlayerCharacter() const
@@ -70,6 +58,16 @@ ALetBeeBeCharacter* APlayerHUD::GetPlayerCharacter() const
 		return PlayerCharacter;
 	}
 	return nullptr;
+}
+
+void APlayerHUD::ShowBuildUI()
+{
+	PlayerWidget->GetBuildUI()->SetVisibility(ESlateVisibility::Visible);
+}
+
+void APlayerHUD::HideBuildUI()
+{
+	PlayerWidget->GetBuildUI()->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void APlayerHUD::BindCameraZoomCurve()

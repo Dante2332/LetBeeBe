@@ -6,12 +6,22 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerWidget.generated.h"
 
-/**
- * 
- */
+class UBuildUI;
+class UCrosshairUI;
+
+
 UCLASS()
 class LETBEEBE_API UPlayerWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+public:
+	UFUNCTION(BlueprintCallable)
+	UCrosshairUI* GetCrosshairUI() const;
+	UFUNCTION(BlueprintCallable)
+	UBuildUI* GetBuildUI() const;
+private:
+	UPROPERTY(meta = (BindWidget))
+	UCrosshairUI* CrosshairUI;
+	UPROPERTY(meta = (BindWidget))
+	UBuildUI* BuildUI;
 };

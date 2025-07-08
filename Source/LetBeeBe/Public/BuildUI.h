@@ -13,5 +13,5 @@ UCLASS()
 class LETBEEBE_API UBuildUI : public UUserWidget
 {
 	GENERATED_BODY()
-	
+	UBuildUI();
 };
