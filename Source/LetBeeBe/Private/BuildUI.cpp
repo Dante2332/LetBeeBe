@@ -3,7 +3,9 @@
 
 #include "BuildUI.h"
 
-UBuildUI::UBuildUI()
+void UBuildUI::NativeConstruct()
 {
-	UUserWidget::SetVisibility(ESlateVisibility::Hidden);
+	Super::NativeConstruct();
+	SetVisibility(ESlateVisibility::Hidden);
 }
+

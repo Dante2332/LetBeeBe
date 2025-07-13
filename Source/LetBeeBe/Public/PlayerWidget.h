@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerWidget.generated.h"
 
+class UInteractionWidget;
 class UBuildUI;
 class UCrosshairUI;
 
@@ -24,4 +25,6 @@ private:
 	UCrosshairUI* CrosshairUI;
 	UPROPERTY(meta = (BindWidget))
 	UBuildUI* BuildUI;
+	UPROPERTY(meta = (BindWidget))
+	UInteractionWidget* InteractionWidget;
 };
