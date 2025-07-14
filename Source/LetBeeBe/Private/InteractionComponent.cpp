@@ -3,7 +3,9 @@
 
 #include "InteractionComponent.h"
 #include "InteractionInterface.h"
+#include "PlayerWidget.h"
 #include "Components/SphereComponent.h"
+#include "LetBeeBe/LetBeeBeCharacter.h"
 
 // Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
@@ -74,7 +76,32 @@ void UInteractionComponent::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCo
 void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
 {
 	if (!bCanInteract) return;
-	for (AActor* Actor : ActorsToCheck)
+	
+	FHitResult Hit;
+	FVector Start = GetOwner()->GetActorLocation();
+	FVector End = Start + GetOwner()->GetActorForwardVector() * 300.0f;
+
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
+	{
+		AActor* HitActor = Hit.GetActor();
+
+		if (HitActor && HitActor->Implements<UInteractionInterface>())
+		{
+			IInteractionInterface* Interactable = Cast<IInteractionInterface>(HitActor);
+
+			if (Interactable && Interactable->GetCanInteract())
+			{
+				ShowPromptOnHUD(Interactable->GetInteractionText());
+				CurrentInteractable = HitActor; // zapamiętaj trafiony aktor
+				return;
+			}
+		}
+	}
+
+	HidePromptOnHUD();
+	CurrentInteractable = nullptr;
+	
+	/*for (AActor* Actor : ActorsToCheck)
 	{
 		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(Actor);
 		if (!OverlappedActor) return; 
@@ -87,6 +114,7 @@ void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
 			{
 				OverlappedActor->SetCanInteract(true);
 			}
+			ShowPromptOnHUD(OverlappedActor->GetInteractionText());
 		}
 		else
 		{
@@ -97,8 +125,27 @@ void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
 				{
 					OverlappingActors.Remove(Actor);
 				}
+				HidePromptOnHUD();
 			}
 		}
+	}*/
+}
+
+void UInteractionComponent::ShowPromptOnHUD(const FText& Prompt)
+{
+	if (ALetBeeBeCharacter* Owner = Cast<ALetBeeBeCharacter>(GetOwner()))
+	{
+		UPlayerWidget* PlayerWidget = Owner->GetPlayerHUD()->GetPlayerWidget();
+		PlayerWidget->ShowInteractionUI(Prompt);
+	}
+}
+
+void UInteractionComponent::HidePromptOnHUD()
+{
+	if (ALetBeeBeCharacter* Owner = Cast<ALetBeeBeCharacter>(GetOwner()))
+	{
+		UPlayerWidget* PlayerWidget = Owner->GetPlayerHUD()->GetPlayerWidget();
+		PlayerWidget->HideInteractionUI();
 	}
 }
 

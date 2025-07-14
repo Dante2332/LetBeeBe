@@ -19,10 +19,10 @@ public:
 	void SetPromptText(const FText& NewText);
 
 	UFUNCTION(BlueprintCallable)
-	void Show();
+	void ShowProgressBar();
 
 	UFUNCTION(BlueprintCallable)
-	void Hide();
+	void HideProgressBar();
 
 protected:
 	virtual void NativeConstruct() override;

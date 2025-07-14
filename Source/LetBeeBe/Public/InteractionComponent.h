@@ -29,14 +29,18 @@ protected:
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
 
 private:
+	UPROPERTY()
+	AActor* CurrentInteractable;
+	UPROPERTY()
+	TArray<AActor*> OverlappingActors;
+	bool bCanInteract = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* InteractionSphere;
 	FTimerHandle InteractionTimeHandle;
 	UFUNCTION()
 	void CheckForInteraction(TArray<AActor*> ActorsToCheck);
-	UPROPERTY()
-	TArray<AActor*> OverlappingActors;
-	bool bCanInteract = true;
+	void ShowPromptOnHUD(const FText& Prompt);
+	void HidePromptOnHUD();
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

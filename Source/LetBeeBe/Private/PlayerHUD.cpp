@@ -60,6 +60,11 @@ ALetBeeBeCharacter* APlayerHUD::GetPlayerCharacter() const
 	return nullptr;
 }
 
+UPlayerWidget* APlayerHUD::GetPlayerWidget() const
+{
+	return PlayerWidget;
+}
+
 void APlayerHUD::ShowBuildUI()
 {
 	PlayerWidget->GetBuildUI()->SetVisibility(ESlateVisibility::Visible);

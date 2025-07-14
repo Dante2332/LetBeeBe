@@ -23,6 +23,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual FText GetInteractionText() const override;
 	
 private:
 	void Pickup();
@@ -31,6 +32,7 @@ private:
 	bool TryPlaceOnGround();
 	bool TryPlaceOnHiveSpot();
 	bool TraceToGround(FHitResult& OutHit);
+	bool bIsBuilding = false;
 	class AHiveSpot* FindHiveSpotInRange();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))

@@ -3,6 +3,7 @@
 
 #include "InteractionWidget.h"
 
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
 void UInteractionWidget::SetPromptText(const FText& NewText)
@@ -10,18 +11,19 @@ void UInteractionWidget::SetPromptText(const FText& NewText)
 	PromptText->SetText(NewText);
 }
 
-void UInteractionWidget::Show()
+void UInteractionWidget::ShowProgressBar()
 {
-	SetVisibility(ESlateVisibility::Visible);
+	ProgressBar->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UInteractionWidget::Hide()
+void UInteractionWidget::HideProgressBar()
 {
-	SetVisibility(ESlateVisibility::Hidden);
+	ProgressBar->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInteractionWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Hide();
+	HideProgressBar();
+	SetVisibility(ESlateVisibility::Hidden);
 }

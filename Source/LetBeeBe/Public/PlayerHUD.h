@@ -21,6 +21,7 @@ class LETBEEBE_API APlayerHUD : public AHUD
 public:
 	APlayerHUD();
 	~APlayerHUD();
+	UPlayerWidget* GetPlayerWidget() const;
 
 
 

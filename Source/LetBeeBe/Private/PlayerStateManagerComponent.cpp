@@ -33,6 +33,7 @@ void UPlayerStateManagerComponent::SetState(EPlayerState NewState)
 	{
 		UPlayerMovementComponent* PlayerMovementComponent = Cast<UPlayerMovementComponent>(OwnerChar->GetCharacterMovement());
 		UWeaponManager* WeaponManager = OwnerChar->GetComponentByClass<UWeaponManager>();
+		UInteractionComponent* InteractionComponent = OwnerChar->GetComponentByClass<UInteractionComponent>();
 		switch (CurrentState)
 		{
 		case EPlayerState::Carrying:
@@ -40,13 +41,13 @@ void UPlayerStateManagerComponent::SetState(EPlayerState NewState)
 			PlayerMovementComponent->OnAim.Execute(false);
 			WeaponManager->SetCanUseGun(false);
 			WeaponManager->SetCanBuyWeapon(false);
-			OwnerChar->GetComponentByClass<UInteractionComponent>()->SetCanInteract(false);
+			InteractionComponent->SetCanInteract(false);
 			break;
 		default:
 			OwnerChar->GetCharacterMovement()->MaxWalkSpeed = 300.f;
 			WeaponManager->SetCanUseGun(true);
 			WeaponManager->SetCanBuyWeapon(true);
-			OwnerChar->GetComponentByClass<UInteractionComponent>()->SetCanInteract(true);
+			InteractionComponent->SetCanInteract(true);
 		
 		}
 	}

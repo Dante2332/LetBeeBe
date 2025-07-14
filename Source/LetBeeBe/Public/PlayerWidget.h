@@ -20,6 +20,12 @@ public:
 	UCrosshairUI* GetCrosshairUI() const;
 	UFUNCTION(BlueprintCallable)
 	UBuildUI* GetBuildUI() const;
+	UFUNCTION(BlueprintCallable)
+	UInteractionWidget* GetInteractionWidget() const;
+	void ShowBuildUI();
+	void HideBuildUI();
+	void ShowInteractionUI(const FText& NewText);
+	void HideInteractionUI();
 private:
 	UPROPERTY(meta = (BindWidget))
 	UCrosshairUI* CrosshairUI;

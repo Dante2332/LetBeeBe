@@ -5,7 +5,6 @@
 
 #include "HiveSpot.h"
 #include "PlayerStateManagerComponent.h"
-#include "Chaos/Deformable/ChaosDeformableCollisionsProxy.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
 
 
@@ -13,11 +12,24 @@ ABEElder::ABEElder()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(RootComponent);
+	
 }
 void ABEElder::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+FText ABEElder::GetInteractionText() const
+{
+	if (!bIsBuilding)
+	{
+		return FText::FromString(TEXT("Press F to Pickup BEElder"));
+	}
+	else
+	{
+		return FText::FromString("Hold F To repair");
+	}
 }
 
 void ABEElder::HandleInteract(AActor* Interactor)
