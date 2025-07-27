@@ -1,151 +1,111 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "InteractionComponent.h"
 #include "InteractionInterface.h"
-#include "PlayerWidget.h"
-#include "Components/SphereComponent.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
+#include "PlayerHUD.h"
+#include "PlayerWidget.h"
+#include "Kismet/GameplayStatics.h"
 
-// Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	InteractionSphere = CreateDefaultSubobject<USphereComponent>("InteractionSphere");
-	InteractionSphere->SetSphereRadius(100);
-	// ...
 }
 
-
-// Called when the game starts
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	InteractionSphere->OnComponentBeginOverlap.AddDynamic(this, &UInteractionComponent::OnSphereBeginOverlap);
-	InteractionSphere->OnComponentEndOverlap.AddDynamic(this, &UInteractionComponent::OnSphereEndOverlap);
-	// ...
-	
+
+	// Co 0.1s sprawdzaj co jest przed graczem
+	GetWorld()->GetTimerManager().SetTimer(InteractionCheckHandle, this, &UInteractionComponent::CheckForInteraction, 0.1f, true);
 }
 
-
-// Called every frame
 void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	// ...
-}
-void UInteractionComponent::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-																			int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor && OtherActor->Implements<UInteractionInterface>())
-	{
-		OverlappingActors.Add(OtherActor);
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, FName("CheckForInteraction"), OverlappingActors);
-		GetWorld()->GetTimerManager().SetTimer(InteractionTimeHandle, Delegate, 0.2f, true);
-		
-	}
 }
 
-void UInteractionComponent::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-														UPrimitiveComponent* OtherComp, int OtherBodyIndex)
-{
-	if (OtherActor && OtherActor->Implements<UInteractionInterface>())
-	{
-		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(OtherActor);
-		if (OverlappedActor->GetCanInteract())
-		{
-			OverlappedActor->SetCanInteract(false);
-			if (OverlappingActors.Contains(OtherActor))
-			{
-				OverlappingActors.Remove(OtherActor);
-			}
-		}
-		if (OverlappingActors.IsEmpty())
-		{
-			GetWorld()->GetTimerManager().ClearTimer(InteractionTimeHandle);
-		}
-		
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EndOverlapActor: %s"), *OtherActor->GetName()));
-
-	}
-}
-
-void UInteractionComponent::CheckForInteraction(TArray<AActor*> ActorsToCheck)
+void UInteractionComponent::CheckForInteraction()
 {
 	if (!bCanInteract) return;
-	
-	FHitResult Hit;
-	FVector Start = GetOwner()->GetActorLocation();
-	FVector End = Start + GetOwner()->GetActorForwardVector() * 300.0f;
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	AController* PlayerController = OwnerPawn->GetController();
+	FVector CamLocation;
+	FRotator CamRotation;
+	PlayerController->GetPlayerViewPoint(CamLocation, CamRotation);
 
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
+	// Przesunięcie startu nieco w przód gracza
+	FVector TraceStart = OwnerPawn->GetActorLocation() + OwnerPawn->GetActorForwardVector() * 50.f;
+	FVector TraceEnd = CamLocation + CamRotation.Vector() * 500.f;
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(OwnerPawn);
+	
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 0.25, 0.25, 0.25);
+	
+	if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, Params))
 	{
+		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 		AActor* HitActor = Hit.GetActor();
 
 		if (HitActor && HitActor->Implements<UInteractionInterface>())
 		{
-			IInteractionInterface* Interactable = Cast<IInteractionInterface>(HitActor);
-
-			if (Interactable && Interactable->GetCanInteract())
+			IInteractionInterface* Interface = Cast<IInteractionInterface>(HitActor);
+			if (Interface && Interface->GetCanInteract())
 			{
-				ShowPromptOnHUD(Interactable->GetInteractionText());
-				CurrentInteractable = HitActor; // zapamiętaj trafiony aktor
+				if (CurrentInteractable != HitActor)
+				{
+					CurrentInteractable = HitActor;
+					ShowPromptOnHUD(Interface->GetInteractionText());
+				}
 				return;
 			}
 		}
 	}
 
-	HidePromptOnHUD();
-	CurrentInteractable = nullptr;
-	
-	/*for (AActor* Actor : ActorsToCheck)
+	// Jeśli nie trafiono nic nowego
+	if (CurrentInteractable)
 	{
-		IInteractionInterface* OverlappedActor = Cast<IInteractionInterface>(Actor);
-		if (!OverlappedActor) return; 
-		FHitResult Hit;
-		FVector Start = GetOwner()->GetActorLocation();
-		FVector End = Start + GetOwner()->GetActorForwardVector() * 100.0f;
-		if ( GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility))
-		{
-			if (!OverlappedActor->GetCanInteract())
-			{
-				OverlappedActor->SetCanInteract(true);
-			}
-			ShowPromptOnHUD(OverlappedActor->GetInteractionText());
-		}
-		else
-		{
-			if (OverlappedActor->GetCanInteract())
-			{
-				OverlappedActor->SetCanInteract(false);
-				if (OverlappingActors.Contains(Actor))
-				{
-					OverlappingActors.Remove(Actor);
-				}
-				HidePromptOnHUD();
-			}
-		}
-	}*/
+		CurrentInteractable = nullptr;
+		HidePromptOnHUD();
+	}
+}
+
+void UInteractionComponent::Interact()
+{
+	if (CurrentInteractable)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("HitActor: %s"), *CurrentInteractable->GetName()));
+		IInteractionInterface::Execute_HandleInteract(CurrentInteractable, GetOwner());
+		HidePromptOnHUD();
+	}
 }
 
 void UInteractionComponent::ShowPromptOnHUD(const FText& Prompt)
 {
-	if (ALetBeeBeCharacter* Owner = Cast<ALetBeeBeCharacter>(GetOwner()))
+	if (ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner()))
 	{
-		UPlayerWidget* PlayerWidget = Owner->GetPlayerHUD()->GetPlayerWidget();
-		PlayerWidget->ShowInteractionUI(Prompt);
+		if (APlayerHUD* HUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD()))
+		{
+			if (UPlayerWidget* Widget = HUD->GetPlayerWidget())
+			{
+				Widget->ShowInteractionUI(Prompt);
+			}
+		}
 	}
 }
 
 void UInteractionComponent::HidePromptOnHUD()
 {
-	if (ALetBeeBeCharacter* Owner = Cast<ALetBeeBeCharacter>(GetOwner()))
+	if (ALetBeeBeCharacter* Player = Cast<ALetBeeBeCharacter>(GetOwner()))
 	{
-		UPlayerWidget* PlayerWidget = Owner->GetPlayerHUD()->GetPlayerWidget();
-		PlayerWidget->HideInteractionUI();
+		if (APlayerHUD* HUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD()))
+		{
+			if (UPlayerWidget* Widget = HUD->GetPlayerWidget())
+			{
+				Widget->HideInteractionUI();
+			}
+		}
 	}
 }
 

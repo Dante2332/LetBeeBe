@@ -41,6 +41,12 @@ private:
 	void BindAimHandle();
 	void AimHandle(bool bIsAiming);
 	ALetBeeBeCharacter* GetPlayerCharacter() const;
+	void BindHandleBuildStart();
+	UFUNCTION()
+	void HandleBuildStart();
+	void BindHandleBuildEnd();
+	UFUNCTION()
+	void HandleBuildEnd();
 	void ShowBuildUI();
 	void HideBuildUI();
 	

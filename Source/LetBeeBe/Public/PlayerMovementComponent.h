@@ -12,7 +12,6 @@ DECLARE_DELEGATE_OneParam(FAimSignature, bool bIsAiming);
 DECLARE_DELEGATE_OneParam(FShotSignature, bool bShouldShoot);
 DECLARE_DELEGATE(FReloadSignature);
 DECLARE_DELEGATE_OneParam(FWeaponSwitchSignature, int32 WeaponIndex);
-DECLARE_MULTICAST_DELEGATE_OneParam(FInteractSignature, AActor* Interactor);
 
 class USpringArmComponent;
 class ALetBeeBeCharacter;
@@ -34,7 +33,7 @@ public:
 	FShotSignature OnShoot;
 	FReloadSignature OnReload;
 	FWeaponSwitchSignature OnWeaponSwitch;
-	FInteractSignature OnInteract;
+
 
 protected:
 	virtual void BeginPlay() override;

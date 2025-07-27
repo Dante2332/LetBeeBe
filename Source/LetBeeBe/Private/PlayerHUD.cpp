@@ -2,7 +2,10 @@
 
 
 #include "PlayerHUD.h"
+
+#include "BuildSubsystem.h"
 #include "MaterialHLSLTree.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "PlayerMovementComponent.h"
 #include "PlayerStateManagerComponent.h"
 #include "PlayerWidget.h"
@@ -31,6 +34,8 @@ void APlayerHUD::BeginPlay()
 	PlayerWidget->GetCrosshairUI()->SetCrosshairGap(StartCrosshairGap);
 	BindCameraZoomCurve();
 	BindAimHandle();
+	BindHandleBuildStart();
+	BindHandleBuildEnd();
 }
 
 
@@ -45,6 +50,8 @@ void APlayerHUD::HandleCameraZoomProgress(const float Value)
 {
 	if (PlayerWidget && PlayerWidget->GetCrosshairUI())
 	{
+		ALetBeeBeCharacter* PlayerCharacter = GetPlayerCharacter();
+		PlayerCharacter->GetCameraBoom()->TargetArmLength = FMath::Lerp(PlayerCharacter->GetStartCameraBoomLength(), PlayerCharacter->GetAimingCameraBoomLength(), Value);
 		float Gap = FMath::Lerp(StartCrosshairGap, AimCrosshairGap, Value); // możesz trzymać w UPlayerWidget jeśli chcesz
 		PlayerWidget->GetCrosshairUI()->SetCrosshairGap(Gap);
 	}
@@ -121,4 +128,23 @@ APlayerHUD::~APlayerHUD()
 		delete CameraZoomTimeline;
 		CameraZoomTimeline = nullptr;
 	}
+}
+void APlayerHUD::BindHandleBuildStart()
+{
+	UBuildSubsystem* BuildSubsystem = GetWorld()->GetSubsystem<UBuildSubsystem>();
+	BuildSubsystem->OnBuildStart.AddDynamic(this, &APlayerHUD::APlayerHUD::HandleBuildStart);
+}
+void APlayerHUD::HandleBuildStart()
+{
+	ShowBuildUI();
+}
+void APlayerHUD::BindHandleBuildEnd()
+{
+	UBuildSubsystem* BuildSubsystem = GetWorld()->GetSubsystem<UBuildSubsystem>();
+	BuildSubsystem->OnBuildEnd.AddDynamic(this, &APlayerHUD::HandleBuildEnd);
+}
+
+void APlayerHUD::HandleBuildEnd()
+{
+	HideBuildUI();
 }

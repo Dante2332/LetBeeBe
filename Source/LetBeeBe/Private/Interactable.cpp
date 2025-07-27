@@ -3,9 +3,6 @@
 
 #include "Interactable.h"
 
-#include "PlayerMovementComponent.h"
-#include "LetBeeBe/LetBeeBeCharacter.h"
-
 
 // Sets default values
 AInteractable::AInteractable()
@@ -17,27 +14,15 @@ AInteractable::AInteractable()
 	RootComponent = SphereCollision;
 }
 
-void AInteractable::HandleInteract(AActor* Interactor)
-{
-}
-
 // Called when the game starts or when spawned
 void AInteractable::BeginPlay()
 {
 	Super::BeginPlay();
-	BindHandleInteract();
 	
 	DrawDebugSphere(GetWorld(), SphereCollision->GetComponentLocation(),SphereCollision->GetScaledSphereRadius(), 32, FColor::White, true);
 }
 
 
-
-void AInteractable::BindHandleInteract()
-{
-	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	PlayerCharacter->FindComponentByClass<UPlayerMovementComponent>()->OnInteract.AddUObject(this, &AInteractable::HandleInteract);
-
-}
 
 // Called every frame
 void AInteractable::Tick(float DeltaTime)

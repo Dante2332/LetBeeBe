@@ -15,5 +15,14 @@ class LETBEEBE_API UBuildUI : public UUserWidget
 	GENERATED_BODY()
 protected:
 	virtual void NativeConstruct() override;
-	
+
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* BuildCanvas;
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* BuildProgressBar;
+private:
+	void BindOnProgressChange();
+	UFUNCTION()
+	void HandleProgressChange(float Progress);
+
 };

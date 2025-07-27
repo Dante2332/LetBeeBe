@@ -18,12 +18,13 @@ public:
 	ABEElder();
 	UPROPERTY(BlueprintAssignable)
 	FOnBeelderPlacedSignature OnBeelderPlaced;
-	virtual void HandleInteract(AActor* Interactor) override;
+	void HandleInteract_Implementation(AActor* Interactor);
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual FText GetInteractionText() const override;
+
 	
 private:
 	void Pickup();

@@ -3,6 +3,7 @@
 
 #include "BEElder.h"
 
+#include "BuildSubsystem.h"
 #include "HiveSpot.h"
 #include "PlayerStateManagerComponent.h"
 #include "LetBeeBe/LetBeeBeCharacter.h"
@@ -32,9 +33,8 @@ FText ABEElder::GetInteractionText() const
 	}
 }
 
-void ABEElder::HandleInteract(AActor* Interactor)
+void ABEElder::HandleInteract_Implementation(AActor* Interactor)
 {
-	if (!bCanInteract) return;
 	if (bIsPicked)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Drop interacted");
@@ -100,7 +100,8 @@ bool ABEElder::TryPlaceOnHiveSpot()
 	SetActorLocation(BEElderLoc->GetComponentLocation());
 	SetActorRotation(BEElderLoc->GetComponentRotation());
 
-	OnBeelderPlaced.Broadcast(this);
+	UBuildSubsystem* BuildSubsystem = GetWorld()->GetSubsystem<UBuildSubsystem>();
+	BuildSubsystem->StartBuild(this);
 	
 	return true;
 }
@@ -116,7 +117,7 @@ bool ABEElder::TraceToGround(FHitResult& OutHit)
 	return bHit && OutHit.GetActor()->ActorHasTag("Ground");
 }
 
-class AHiveSpot* ABEElder::FindHiveSpotInRange()
+AHiveSpot* ABEElder::FindHiveSpotInRange()
 {
 	TArray<AActor*> HiveSpots;
 	GetOverlappingActors(HiveSpots, AHiveSpot::StaticClass());

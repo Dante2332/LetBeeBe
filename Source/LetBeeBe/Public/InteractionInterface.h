@@ -16,7 +16,8 @@ class IInteractionInterface
 	GENERATED_BODY()
 
 public:
-	virtual void HandleInteract(AActor* Interactor) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void HandleInteract(AActor* Interactor);
 	virtual FText GetInteractionText() const { return FText::FromString(TEXT("Interact")); }
 	virtual bool GetCanInteract() const = 0;
 	virtual void SetCanInteract(bool bNewState) = 0;

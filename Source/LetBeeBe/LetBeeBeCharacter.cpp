@@ -42,7 +42,6 @@ ALetBeeBeCharacter::ALetBeeBeCharacter()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>("WeaponManager");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("InteractionComponent");
-	InteractionComponent->GetInteractionSphere()->SetupAttachment(RootComponent);
 
 	BeelderAttachment = CreateDefaultSubobject<USceneComponent>(TEXT("BeelderAttachment"));
 	BeelderAttachment->SetupAttachment(RootComponent);

@@ -21,13 +21,14 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void HandleInteract(AActor* Interactor) override;
+	void HandleInteract_Implementation(AActor* Interactor);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UWeaponDataAsset* WeaponDataAsset;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* WeaponMesh;
+	virtual FText GetInteractionText() const override;
 
 	
 

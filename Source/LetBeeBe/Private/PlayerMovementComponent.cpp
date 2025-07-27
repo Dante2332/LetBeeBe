@@ -9,7 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "PlayerStateManagerComponent.h"
-#include "Camera/CameraComponent.h"
+#include "InteractionComponent.h"
 
 class AGun;
 UPlayerMovementComponent::UPlayerMovementComponent()
@@ -196,7 +196,10 @@ void UPlayerMovementComponent::StartShooting()
 	}
 	else
 	{
-		OnInteract.Broadcast(GetOwner());
+		if (UInteractionComponent* InteractionComponent = Owner->FindComponentByClass<UInteractionComponent>())
+		{
+			InteractionComponent->Interact();
+		}
 	}
 	
 }
@@ -229,11 +232,10 @@ void UPlayerMovementComponent::SwitchWeapon(const FInputActionValue& Value)
 
 void UPlayerMovementComponent::Interact()
 {
-	if (StateManager->GetState() == EPlayerState::Carrying) return;
-	if (OnInteract.IsBound())
+	if (UInteractionComponent* InteractionComponent = Owner->FindComponentByClass<UInteractionComponent>())
 	{
-		OnInteract.Broadcast(GetOwner());
-
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("F")));
+		InteractionComponent->Interact();
 	}
 }
 

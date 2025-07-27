@@ -6,7 +6,6 @@
 #include "LetBeeBe/LetBeeBeCharacter.h"
 #include "WeaponManager.h"
 
-#include "PlayerStateManagerComponent.h"
 
 // Sets default values
 AWeaponPickup::AWeaponPickup()
@@ -28,18 +27,20 @@ void AWeaponPickup::BeginPlay()
 	Cost = WeaponDataAsset->WeaponInfo.Cost;
 }
 
-void AWeaponPickup::HandleInteract(AActor* Interactor)
+void AWeaponPickup::HandleInteract_Implementation(AActor* Interactor)
 {
 	ALetBeeBeCharacter* PlayerCharacter = Cast<ALetBeeBeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	
-	if (bCanInteract)
-	{
-		UWeaponManager* WeaponManager = PlayerCharacter->GetWeaponManager();
-		WeaponManager->BuyWeapon(WeaponDataAsset->WeaponInfo.WeaponClass);
-
-	}
+	UWeaponManager* WeaponManager = PlayerCharacter->GetWeaponManager();
+	WeaponManager->BuyWeapon(WeaponDataAsset->WeaponInfo.WeaponClass);
 }
 
+
+FText AWeaponPickup::GetInteractionText() const
+{
+	FText NameText = FText::FromName(WeaponDataAsset->WeaponInfo.Name);
+	FText CostText = FText::AsNumber(Cost);
+	return FText::Format(NSLOCTEXT("Weapon", "BuyPrompt", "Press F to buy {0} for {1}"), NameText, CostText);
+}
 
 // Called every frame
 void AWeaponPickup::Tick(float DeltaTime)

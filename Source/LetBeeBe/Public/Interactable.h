@@ -16,18 +16,17 @@ class LETBEEBE_API AInteractable : public AActor, public IInteractionInterface
 public:	
 	// Sets default values for this actor's properties
 	AInteractable();
-	virtual void HandleInteract(AActor* Interactor) override;
-	virtual bool GetCanInteract() const override { return bCanInteract;}
 	virtual void SetCanInteract(bool bNewState) override { bCanInteract = bNewState; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual bool GetCanInteract() const override { return bCanInteract;}
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USphereComponent* SphereCollision;
-	bool bCanInteract;
-private:
-	void BindHandleInteract();
+	bool bCanInteract = true;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

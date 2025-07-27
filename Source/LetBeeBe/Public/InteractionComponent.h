@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "InteractionComponent.generated.h"
 
-class USphereComponent;
+class AActor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LETBEEBE_API UInteractionComponent : public UActorComponent
@@ -14,35 +14,36 @@ class LETBEEBE_API UInteractionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UInteractionComponent();
-	FORCEINLINE USphereComponent* GetInteractionSphere() const { return InteractionSphere; }
-	FORCEINLINE void SetCanInteract(bool b) { bCanInteract = b; }
+
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	/** Sprawdza co gracz ma przed sobą i ustawia aktualnego aktora do interakcji */
+	void CheckForInteraction();
+
+	/** Wykonuje interakcję z aktualnym obiektem */
+	void Interact();
+
+	/** Czy komponent pozwala na interakcję */
+	void SetCanInteract(bool bNewState) { bCanInteract = bNewState; }
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	UFUNCTION()
-	void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-														int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int OtherBodyIndex);
+	UPROPERTY(EditAnywhere, Category = "Interaction")
+	float InteractionDistance = 500.0f;
 
-private:
-	UPROPERTY()
-	AActor* CurrentInteractable;
-	UPROPERTY()
-	TArray<AActor*> OverlappingActors;
+	UPROPERTY(EditAnywhere, Category = "Interaction")
 	bool bCanInteract = true;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	USphereComponent* InteractionSphere;
-	FTimerHandle InteractionTimeHandle;
-	UFUNCTION()
-	void CheckForInteraction(TArray<AActor*> ActorsToCheck);
+
+	/** Aktor aktualnie "namierzony" przez gracza */
+	UPROPERTY()
+	AActor* CurrentInteractable = nullptr;
+
+	FTimerHandle InteractionCheckHandle;
+
+	/** Pokazuje prompt na HUD */
 	void ShowPromptOnHUD(const FText& Prompt);
+
+	/** Ukrywa prompt */
 	void HidePromptOnHUD();
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-		
 };
